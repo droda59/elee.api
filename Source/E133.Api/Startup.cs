@@ -38,7 +38,6 @@ namespace E133.Api
                     var settings = options.SerializerSettings;
                     
                     settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    settings.Converters.Add(new MeasureUnitJsonConverter());
                     settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.Formatting = Formatting.Indented;
                 });

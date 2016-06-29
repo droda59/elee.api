@@ -1,12 +1,10 @@
 using System;
 
-using E133.Business;
-
 using Newtonsoft.Json;
 
-namespace E133.Api.Infrastructure
+namespace E133.Business.Serialization
 {
-    public class MeasureUnitJsonConverter : JsonConverter
+    internal class MeasureUnitJsonConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -15,7 +13,7 @@ namespace E133.Api.Infrastructure
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            throw new NotSupportedException();
+            return existingValue;
         }
 
         public override bool CanConvert(Type objectType)

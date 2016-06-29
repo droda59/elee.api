@@ -35,7 +35,7 @@ namespace E133.Database
                 x =>
                     {
                         x.AutoMap();
-                        x.MapMember(y => y.Unit)
+                        x.MapMember(y => y.Abbreviation)
                             .SetSerializer(new EnumSerializer<MeasureUnit>(BsonType.String));
                     });
         }
