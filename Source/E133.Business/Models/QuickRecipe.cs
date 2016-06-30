@@ -20,12 +20,16 @@ namespace E133.Business.Models
         
         public string Note { get; set; }
         
-        public string ImageUrl { get; set; }
+        public string SmallImageUrl { get; set; }
+        
+        public string NormalmageUrl { get; set; }
+        
+        public string LargeImageUrl { get; set; }
 		
 		public string Summary { get; set; }
 		
 		public string OriginalServings { get; set; }
-		
+
 		public IList<Duration> Durations { get; set; }
 
         public IList<Subrecipe> Subrecipes { get; set; }

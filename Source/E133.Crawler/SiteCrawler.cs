@@ -74,6 +74,7 @@ namespace E133.Crawler
                 }
                 finally 
                 {
+                    // TODO Log this asshole
                     unprocessedLinks.Remove(link);
                 }
             } while ((link = unprocessedLinks.FirstOrDefault()) != null);

@@ -87,7 +87,7 @@ namespace E133.Parser
             var recipe = new QuickRecipe();
             recipe.Language = this.GetRecipeIetfLanguage(document);
             recipe.Note = this.GetNote(document);
-            recipe.ImageUrl = this.GetImageUrl(document);
+            recipe.SmallImageUrl = this.GetImageUrl(document);
             recipe.OriginalUrl = uri.AbsoluteUri;
             recipe.OriginalServings = this.GetRecipeYield(document);
             recipe.Title = this.GetRecipeTitle(document);

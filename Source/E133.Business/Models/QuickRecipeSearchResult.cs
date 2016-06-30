@@ -4,6 +4,6 @@ namespace E133.Business.Models
     {
         public string Title { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string SmallImageUrl { get; set; }
     }
 }
