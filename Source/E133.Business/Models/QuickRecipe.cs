@@ -6,6 +6,7 @@ namespace E133.Business.Models
 	{
         public QuickRecipe()
         {
+            this.Categories = new List<string>();
             this.Durations = new List<Duration>();
             this.Subrecipes = new List<Subrecipe>();
             this.Ingredients = new List<Ingredient>();
@@ -30,6 +31,8 @@ namespace E133.Business.Models
 		
 		public string OriginalServings { get; set; }
 
+        public IList<string> Categories { get; set; }
+		
 		public IList<Duration> Durations { get; set; }
 
         public IList<Subrecipe> Subrecipes { get; set; }

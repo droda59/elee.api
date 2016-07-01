@@ -34,23 +34,23 @@ namespace E133.Business.Repositories
             return Task.FromResult(false);
         }
 
-        public Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query)
+        public Task<IEnumerable<QuickRecipe>> SearchAsync(string query)
         {
             // await this.Collection.Indexes.CreateOneAsync(Builders<QuickRecipe>.IndexKeys.Text(x => x.Title));
 
-            var results = new List<QuickRecipeSearchResult>();
+            // var results = new List<QuickRecipeSearchResult>();
             // using (var cursor = await this.Collection.FindAsync(Builders<QuickRecipe>.Filter.Text(query)))
             // {
             //     while (await cursor.MoveNextAsync())
             //     {
             //         foreach (var document in cursor.Current)
             //         {
-            //             results.Add(new QuickRecipeSearchResult { Id = document.Id, Title = document.Title, ImageUrl = document.ImageUrl });
+            //             results.Add(document);
             //         }
             //     }
             // }
 
-            return Task.FromResult(Enumerable.Empty<QuickRecipeSearchResult>());
+            return Task.FromResult(Enumerable.Empty<QuickRecipe>());
         }
     }
 }
