@@ -47,7 +47,7 @@ namespace E133.Business.Repositories
         public Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query)
         {
             var task = Task.Run(() =>
-                _knownRecipes.Values.Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, ImageUrl = x.ImageUrl }));
+                _knownRecipes.Values.Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl }));
             task.Wait();
 
             return task;
