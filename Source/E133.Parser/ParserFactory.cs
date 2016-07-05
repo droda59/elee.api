@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace E133.Parser
 {
-    internal class ParserFactory : IParserFactory
+    public class ParserFactory : IParserFactory
     {
         private readonly IDictionary<string, IHtmlParser> _parsers;
 

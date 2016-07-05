@@ -25,11 +25,6 @@ namespace E133.Parser
             : base(htmlLoader, actionDetectorFactory, timerDetectorFactory, ingredientDetectorFactory, measureUnitDetectorFactory, languageHelperFactory, subrecipeRepositoryFactory)
         {
         }
-        
-        public override bool IsRecipePage(Uri uri)
-        {
-            return uri.ToString().Contains("recette") || uri.ToString().Contains("recipe");
-        }
 
         protected override string GetRecipeIetfLanguage(HtmlDocument document)
         {
@@ -43,37 +38,58 @@ namespace E133.Parser
                 .SelectSingleNode("//meta[@name='description']").Attributes["content"].Value.Trim();
         }
 
-        protected override string GetImageUrl(HtmlDocument document)
+        protected override string GetSmallImageUrl(HtmlDocument document)
         {
             return document.DocumentNode
-                .SelectSingleNode(".//div[@class='itemDetail']")
-                .SelectSingleNode(".//div[@class='pict']")
+                .SelectSingleNode(".//div[@class='recipe-picture']")
+                .SelectSingleNode(".//a")
+                .SelectSingleNode(".//img")
+                .Attributes["srcset"].Value.Split(',')[0].Replace("1x", string.Empty).Trim();
+        }
+
+        protected override string GetNormalImageUrl(HtmlDocument document)
+        {
+            return document.DocumentNode
+                .SelectSingleNode(".//div[@class='recipe-picture']")
+                .SelectSingleNode(".//a")
+                .Attributes["href"].Value.Split('?')[0].Trim();
+        }
+
+        protected override string GetLargeImageUrl(HtmlDocument document)
+        {
+            return document.DocumentNode
+                .SelectSingleNode(".//div[@class='recipe-bg']")
                 .SelectSingleNode(".//img")
                 .Attributes["src"].Value.Trim();
         }
 
         protected override string GetNote(HtmlDocument document)
         {
-            var tipsNodes = document.DocumentNode
-                .SelectSingleNode(".//section[@class='tips']")
-                .SelectNodes(".//p")
-                .Select(x => x.InnerText)
-                .ToList();
-                    
-            return string.Join(string.Empty, tipsNodes);
+            var noteNode = document.DocumentNode.SelectSingleNode(".//section[@class='tips']");
+            if (noteNode != null)
+            {
+                var tipsNodes = noteNode
+                    .SelectNodes(".//p")
+                    .Select(x => x.InnerText)
+                    .ToList();
+                        
+                return string.Join(string.Empty, tipsNodes);
+            }
+
+            return string.Empty;
         }
 
         protected override string GetRecipeYield(HtmlDocument document)
         {
             var yieldNode = document.DocumentNode
-                .SelectSingleNode(".//div[@class='itemDetail']")
-                .SelectSingleNode(".//div[@class='desc']")
+                .SelectSingleNode(".//div[@class='recipe-content']")
                 .SelectSingleNode(".//dl")
-                .SelectSingleNode(".//dd[@itemprop='recipeYield']");
+                .SelectNodes(".//dt")
+                .SingleOrDefault(x => x.InnerText == "Portions");
 
             if (yieldNode != null)
             {
-                return yieldNode.InnerText;
+                return this.GetMatchingDdValue(yieldNode);
             }
 
             return string.Empty;
@@ -82,28 +98,25 @@ namespace E133.Parser
         protected override IEnumerable<Duration> GetDurations(HtmlDocument document)
         {
             var nodes = document.DocumentNode
-                .SelectSingleNode(".//div[@class='itemDetail']")
-                .SelectSingleNode(".//div[@class='desc']")
+                .SelectSingleNode(".//div[@class='recipe-content']")
                 .SelectSingleNode(".//dl")
-                .ChildNodes;
+                .SelectNodes(".//dd");
 
             var node = nodes.First();
             while (node != null)
             {
-                // TODO Temp fix, localize and do better
-                if (node.Name == "dt" && node.InnerText != "Portions")
+                var valueNode = node.SelectSingleNode(".//meta");
+                if (valueNode != null)
                 {
-                    var title = node.InnerText.Trim();
-                    var infoContent = node.NextSibling.NextSibling.SelectSingleNode(".//meta[@itemprop]");
-                    if (infoContent != null)
+                    var descriptionNode = node.SelectSingleNode("preceding-sibling::*[1][self::dt]");
+                    var title = descriptionNode.InnerText.Trim();
+
+                    var time = valueNode.Attributes["content"].Value;
+                    yield return new Duration
                     {
-                        var time = infoContent.Attributes["content"].Value;
-                        yield return new Duration
-                        {
-                            Title = title, 
-                            Time = time
-                        };
-                    }
+                        Title = title, 
+                        Time = time
+                    };
                 }
 
                 node = node.NextSibling;
@@ -113,8 +126,7 @@ namespace E133.Parser
         protected override HtmlNode GetIngredientSection(HtmlDocument document)
         {
             return document.DocumentNode
-                .SelectSingleNode("//section[@class='ingredients']")
-                .SelectSingleNode(".//div[@class='frmInnerWrap']");
+                .SelectSingleNode("//section[@class='ingredients']");
         }
 
         protected override HtmlNodeCollection GetSubrecipeNodes(HtmlDocument document)
@@ -128,21 +140,24 @@ namespace E133.Parser
             return subrecipeNode.InnerText.Trim();
         }
 
-        protected override HtmlNodeCollection GetSubrecipeIngredientNodesFromParent(HtmlNode parent)
+        protected override HtmlNodeCollection GetSubrecipeIngredientNodesFromParent(HtmlNode subrecipeNode)
         {
-            return this.GetIngredientNodesFromParent(parent.NextSibling.NextSibling);
+            var ingredientEnumeration = subrecipeNode
+                .SelectSingleNode("following-sibling::*[1][self::ul]");
+                
+            return this.GetIngredientNodesFromParent(ingredientEnumeration);
         }
 
         protected override HtmlNodeCollection GetIngredientNodesFromParent(HtmlNode parent)
         {
             return parent
-                .SelectNodes(".//li//label[@itemprop='ingredients']//span");
+                .SelectNodes(".//li//label//span");
         }
 
         protected override HtmlNodeCollection GetStepSections(HtmlDocument document)
         {
             return document.DocumentNode
-                .SelectNodes("//section[@itemprop='recipeInstructions']//h3");
+                .SelectNodes("//section[@id='preparation']//h3");
         }
 
         protected override HtmlNodeCollection GetSubrecipeSteps(HtmlNode stepSubrecipeNode)

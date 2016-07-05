@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-using E133.Business.Models;
 using E133.Parser;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E133.Api.Controllers
 {
-    // [Authorize(Policy = "LocalAuthorizationOnly")]
+    // [Authorize(Policy = "LocalOnly")]
     [Route("api/[controller]")]
     public class ParserTestController : Controller
     {
@@ -24,17 +24,6 @@ namespace E133.Api.Controllers
         [Route("parse")]
         public async Task<IActionResult> ParseAsync(string url)
         {
-            var result = await this.ParseRecipeAsync(url);
-            if (result == null)
-            {
-                return new BadRequestResult();
-            }
-
-            return new ObjectResult(result);
-        }
-
-        private async Task<QuickRecipe> ParseRecipeAsync(string url)
-        {
             var uri = new Uri(url);
             IHtmlParser parser = null;
 
@@ -44,12 +33,12 @@ namespace E133.Api.Controllers
             }
             catch (KeyNotFoundException)
             {
-                return null;
+                return new BadRequestResult();
             }
 
             var parsedContent = await parser.ParseHtmlAsync(uri);
 
-            return parsedContent;
+            return new ObjectResult(parsedContent);
         }
     }
 }

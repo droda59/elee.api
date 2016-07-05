@@ -11,5 +11,7 @@ namespace E133.Crawler
         IBase Base { get; }
         
         Task<IEnumerable<string>> GetAllSiteLinks();
+
+        Task<bool> IsRecipeLink(Uri uri);
     }
 }

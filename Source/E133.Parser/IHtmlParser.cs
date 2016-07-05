@@ -10,8 +10,6 @@ namespace E133.Parser
     {
         IBase Base { get; }
 
-        bool IsRecipePage(Uri uri);
-
         Task<QuickRecipe> ParseHtmlAsync(Uri uri);
     }
 }
