@@ -35,7 +35,9 @@ namespace E133.Parser
         protected override string GetRecipeTitle(HtmlDocument document)
         {
             return document.DocumentNode
-                .SelectSingleNode("//meta[@name='description']").Attributes["content"].Value.Trim();
+                .SelectSingleNode(".//div[@class='recipe-content']")
+                .SelectSingleNode(".//h1")
+                .InnerText.Trim();
         }
 
         protected override string GetSmallImageUrl(HtmlDocument document)
@@ -85,7 +87,7 @@ namespace E133.Parser
                 .SelectSingleNode(".//div[@class='recipe-content']")
                 .SelectSingleNode(".//dl")
                 .SelectNodes(".//dt")
-                .SingleOrDefault(x => x.InnerText == "Portions");
+                .SingleOrDefault(x => x.InnerText == "Portions" || x.InnerText == "Rendement");
 
             if (yieldNode != null)
             {
@@ -157,13 +159,13 @@ namespace E133.Parser
         protected override HtmlNodeCollection GetStepSections(HtmlDocument document)
         {
             return document.DocumentNode
-                .SelectNodes("//section[@id='preparation']//h3");
+                .SelectNodes("//section[@id='preparation']//h2|//section[@id='preparation']//h3");
         }
 
         protected override HtmlNodeCollection GetSubrecipeSteps(HtmlNode stepSubrecipeNode)
         {
-            return stepSubrecipeNode.NextSibling.NextSibling
-                .SelectNodes(".//li//span");
+            return stepSubrecipeNode
+                .SelectNodes(".//following-sibling::*[1][self::ol]");
         }
     }
 }

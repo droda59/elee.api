@@ -88,10 +88,10 @@ namespace E133.Parser.LanguageUtilities.French
 
         private static int AnalyzeVerbGroup(string word)
         {
-            if (word.EndsWith("�", StringComparison.OrdinalIgnoreCase)
-                || word.EndsWith("�s", StringComparison.OrdinalIgnoreCase)
-                || word.EndsWith("�e", StringComparison.OrdinalIgnoreCase)
-                || word.EndsWith("�es", StringComparison.OrdinalIgnoreCase))
+            if (word.EndsWith("é", StringComparison.OrdinalIgnoreCase)
+                || word.EndsWith("és", StringComparison.OrdinalIgnoreCase)
+                || word.EndsWith("ée", StringComparison.OrdinalIgnoreCase)
+                || word.EndsWith("ées", StringComparison.OrdinalIgnoreCase))
             {
                 return 1;
             }
@@ -117,15 +117,15 @@ namespace E133.Parser.LanguageUtilities.French
 
         private static int AnalyzeEndingLength(string word)
         {
-            if (word.EndsWith("�", StringComparison.OrdinalIgnoreCase) 
+            if (word.EndsWith("é", StringComparison.OrdinalIgnoreCase) 
                 || word.EndsWith("i", StringComparison.OrdinalIgnoreCase)
                 || word.EndsWith("u", StringComparison.OrdinalIgnoreCase))
             {
                 return 1;
             }
             
-            if (word.EndsWith("�s", StringComparison.OrdinalIgnoreCase) 
-                || word.EndsWith("�e", StringComparison.OrdinalIgnoreCase)
+            if (word.EndsWith("és", StringComparison.OrdinalIgnoreCase) 
+                || word.EndsWith("ée", StringComparison.OrdinalIgnoreCase)
                 || word.EndsWith("is", StringComparison.OrdinalIgnoreCase) 
                 || word.EndsWith("ie", StringComparison.OrdinalIgnoreCase)
                 || word.EndsWith("us", StringComparison.OrdinalIgnoreCase) 
@@ -134,7 +134,7 @@ namespace E133.Parser.LanguageUtilities.French
                 return 2;
             }
             
-            if (word.EndsWith("�es", StringComparison.OrdinalIgnoreCase) 
+            if (word.EndsWith("ées", StringComparison.OrdinalIgnoreCase) 
                 || word.EndsWith("ies", StringComparison.OrdinalIgnoreCase)
                 || word.EndsWith("ues", StringComparison.OrdinalIgnoreCase))
             {

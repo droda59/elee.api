@@ -213,7 +213,7 @@ namespace E133.Parser
                                 this.FlushPhrasePart(recipe, step, phraseBuilder, previouslyReadType);
                             }
 
-                            phraseBuilder.AppendFormat("{0} ", word);
+                            phraseBuilder.AppendFormat(" {0}", word);
 
                             index++;
                         }
@@ -296,18 +296,19 @@ namespace E133.Parser
             this._subrecipeRepository = this._subrecipeRepositoryFactory(this._recipeCulture);
         }
 
-        private bool LookAheadIngredientEnumerationStepPart(string word, MatchCollection words, int index, QuickRecipe recipe, int subrecipeId, IList<int> skippedIndexes, ref string result)
+        private bool LookAheadIngredientEnumerationStepPart(string word, MatchCollection words, int index, QuickRecipe recipe, int subrecipeId, List<int> skippedIndexes, ref string result)
         {
             var ingredientIds = new List<string>();
+            var localSkippedIndexes = new List<int>();
 
             if (this.TryParseIngredientStepPart(word, words, index, recipe, subrecipeId, ref word))
             {
                 ingredientIds.Add(word);
-                skippedIndexes.Add(index + 1);
+                localSkippedIndexes.Add(index + 1);
                 index++;
                 while (index < words.Count)
                 {
-                    if (skippedIndexes.Contains(index))
+                    if (localSkippedIndexes.Contains(index))
                     {
                         index++;
                         continue;
@@ -318,13 +319,13 @@ namespace E133.Parser
                     // TODO Verify future next word, because the rest of the sentence could start with this
                     if (word == "," || word == "et")
                     {
-                        skippedIndexes.Add(index);
+                        localSkippedIndexes.Add(index);
                     }
                     else if (this.TryParseIngredientStepPart(word, words, index, recipe, subrecipeId, ref word))
                     {
                         ingredientIds.Add(word);
-                        skippedIndexes.Add(index);
-                        skippedIndexes.Add(index + 1);
+                        localSkippedIndexes.Add(index);
+                        localSkippedIndexes.Add(index + 1);
                     }
                     else
                     {
@@ -339,6 +340,7 @@ namespace E133.Parser
             if (isEnumeration)
             {
                 result = string.Join(",", ingredientIds);
+                skippedIndexes.AddRange(localSkippedIndexes);                
             }
 
             return isEnumeration;
@@ -482,7 +484,12 @@ namespace E133.Parser
         {
             if (phraseBuilder.Length > 0)
             {
-                var value = phraseBuilder.ToString().Trim();
+                var value = phraseBuilder.ToString().Trim()
+                    .Replace(" ,", ",")
+                    .Replace(" .", ".")
+                    .Replace("’ ", "’")
+                    .Replace("' ", "'");
+
                 phraseBuilder.Clear();
 
                 if (readType == typeof(ActionPart))
