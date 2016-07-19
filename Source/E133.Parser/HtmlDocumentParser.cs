@@ -194,7 +194,7 @@ namespace E133.Parser
                                 currentlyReadType = typeof(IngredientPart);
                                 skippedIndexes.Add(index + 1);
                             }
-                            else if (this.TryParseTimerStepPart(word, words, index, ref word))
+                            else if (this.TryParseTimerStepPart(word, words, index, skippedIndexes, ref word))
                             {
                                 currentlyReadType = typeof(TimerPart);
                                 skippedIndexes.Add(index + 1);
@@ -364,18 +364,32 @@ namespace E133.Parser
             return false;
         }
 
-        private bool TryParseTimerStepPart(string word, MatchCollection words, int index, ref string result)
+        private bool TryParseTimerStepPart(string word, MatchCollection words, int index, List<int> skippedIndexes, ref string result)
         {
             int time;
-            if (int.TryParse(word, out time) && index + 1 < words.Count)
+            var localSkippedIndexes = new List<int>();
+
+            if (int.TryParse(word, out time))
             {
-                var nextWord = words[index + 1].Value.Trim();
-
-                if (this._timerDetector.IsTimeQualifier(nextWord))
+                index++;
+                while (index < words.Count)
                 {
-                    result = this._timerDetector.Timerify(time, nextWord);
+                    word = words[index].Value.Trim();
+                    int time2;
+                    if (word == "à" || int.TryParse(word, out time2))
+                    {
+                        localSkippedIndexes.Add(index);
+                        continue;
+                    }
+                    else if (this._timerDetector.IsTimeQualifier(word))
+                    {
+                        localSkippedIndexes.Add(index);
+                        result = "{" + string.Join(" ", localSkippedIndexes.Select(x => words[x])) + "}" + this._timerDetector.Timerify(time, word);
 
-                    return true;
+                        skippedIndexes.AddRange(localSkippedIndexes);                
+
+                        return true;
+                    }
                 }
             }
 
@@ -499,7 +513,8 @@ namespace E133.Parser
                 else if (readType == typeof(TimerPart))
                 {
                     var previousAction = step.Parts.Last(x => x is ActionPart) as ActionPart;
-                    step.Parts.Add(new TimerPart { Action = previousAction.Value, Value = value, Text = "" });
+                    var text = value.Split('{', '}')[1];
+                    step.Parts.Add(new TimerPart { Action = previousAction.Value, Value = value, Text = text });
                 }
                 else if (readType == typeof(TextPart))
                 {
