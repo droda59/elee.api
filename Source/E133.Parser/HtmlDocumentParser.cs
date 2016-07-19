@@ -371,25 +371,27 @@ namespace E133.Parser
 
             if (int.TryParse(word, out time))
             {
+                localSkippedIndexes.Add(index);
                 index++;
                 while (index < words.Count)
                 {
                     word = words[index].Value.Trim();
+
                     int time2;
                     if (word == "à" || int.TryParse(word, out time2))
                     {
                         localSkippedIndexes.Add(index);
-                        continue;
                     }
                     else if (this._timerDetector.IsTimeQualifier(word))
                     {
                         localSkippedIndexes.Add(index);
                         result = "{" + string.Join(" ", localSkippedIndexes.Select(x => words[x])) + "}" + this._timerDetector.Timerify(time, word);
-
                         skippedIndexes.AddRange(localSkippedIndexes);                
 
                         return true;
                     }
+
+                    index++;
                 }
             }
 
@@ -514,7 +516,8 @@ namespace E133.Parser
                 {
                     var previousAction = step.Parts.Last(x => x is ActionPart) as ActionPart;
                     var text = value.Split('{', '}')[1];
-                    step.Parts.Add(new TimerPart { Action = previousAction.Value, Value = value, Text = text });
+                    var timerValue = value.Replace(text, string.Empty).Replace("{", string.Empty).Replace("}", string.Empty);
+                    step.Parts.Add(new TimerPart { Action = previousAction.Value, Value = timerValue, Text = text });
                 }
                 else if (readType == typeof(TextPart))
                 {
