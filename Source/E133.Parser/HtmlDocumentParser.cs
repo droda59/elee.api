@@ -367,31 +367,74 @@ namespace E133.Parser
         private bool TryParseTimerStepPart(string word, MatchCollection words, int index, List<int> skippedIndexes, ref string result)
         {
             int time;
-            var localSkippedIndexes = new List<int>();
-
             if (int.TryParse(word, out time))
             {
-                localSkippedIndexes.Add(index);
+                var localSkippedIndexes = new List<int> { index };
+                var durationBuilder = new StringBuilder().AppendFormat("PT{0}", time);
+                var isTime = false;
+                var rangeDuration = false;
+
                 index++;
                 while (index < words.Count)
                 {
                     word = words[index].Value.Trim();
 
-                    int time2;
-                    if (word == "à" || int.TryParse(word, out time2))
+                    // If we find another number, we add it in the duration only if it's not a range duration ("1 to 2 minutes")
+                    // If it's a range duration, we want to keep only the first number for the final duration format
+                    if (int.TryParse(word, out time))
                     {
+                        if (!rangeDuration)
+                        {
+                            durationBuilder.Append(time);
+                        }
+                        localSkippedIndexes.Add(index);
+                    }
+                    else if (word == "à")
+                    {
+                        rangeDuration = true;
                         localSkippedIndexes.Add(index);
                     }
                     else if (this._timerDetector.IsTimeQualifier(word))
                     {
+                        isTime = true;
+                        var qualifier = this._timerDetector.GetTimeQualifier(word);
+                        durationBuilder.Append(qualifier);
                         localSkippedIndexes.Add(index);
-                        result = "{" + string.Join(" ", localSkippedIndexes.Select(x => words[x])) + "}" + this._timerDetector.Timerify(time, word);
-                        skippedIndexes.AddRange(localSkippedIndexes);                
-
-                        return true;
+                    }
+                    // If we find something that is not from a time notation, we end this
+                    else
+                    {
+                        break;
                     }
 
                     index++;
+                }
+
+                if (isTime)
+                {
+                    var durationString = durationBuilder.ToString();
+                    // If this is a time notation, and the last character is an integer, it means we found something like "1 hour 30"
+                    // We then have to find the last unit to append the lesser unit
+                    if (int.TryParse(durationString.Last().ToString(), out time))
+                    {
+                        var lastChar = durationString.Last(x => !int.TryParse(x.ToString(), out time));
+                        switch (lastChar)
+                        {
+                            case 'H': 
+                                durationBuilder.Append("M");
+                                break;
+                            case 'M': 
+                                durationBuilder.Append("S");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+
+                    result = "{" + string.Join(" ", localSkippedIndexes.Select(x => words[x])) + "}" + durationBuilder.ToString();
+                    skippedIndexes.AddRange(localSkippedIndexes);                
+
+                    return true;
                 }
             }
 
