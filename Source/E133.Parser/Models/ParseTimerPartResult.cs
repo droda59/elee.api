@@ -11,5 +11,13 @@ namespace E133.Parser
         public string OutputFormat { get; set; }
 
         public string OutputValue { get; set; }
+
+        public static ParseTimerPartResult NegativeResult
+        {
+            get 
+            {
+                return new ParseTimerPartResult { IsTimerPart = false };
+            }
+        } 
     }
 }

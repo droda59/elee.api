@@ -13,11 +13,11 @@ namespace E133.Parser.LanguageUtilities.French
                 case "dl": return MeasureUnit.Decilitre;
                 case "l": return MeasureUnit.Litre;
 
-                case "c. � th�":
+                case "c. à thé":
                 case "tsp": return MeasureUnit.Teaspoon;
 
-                case "c. � table":
-                case "c. � caf�":
+                case "c. à table":
+                case "c. à café":
                 case "tbsp": return MeasureUnit.Tablespoon;
 
                 case "once":
@@ -34,8 +34,8 @@ namespace E133.Parser.LanguageUtilities.French
                 case "lb":
                 case "lbs": return MeasureUnit.Pound;
 
-                case "pinc�e":
-                case "pinc�es": return MeasureUnit.Pinch;
+                case "pincée":
+                case "pincées": return MeasureUnit.Pinch;
 
                 default: return MeasureUnit.Unit;
             }

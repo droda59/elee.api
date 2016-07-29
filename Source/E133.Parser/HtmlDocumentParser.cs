@@ -186,34 +186,42 @@ namespace E133.Parser
                             var previouslyReadType = currentlyReadType;
                             var phrase = words.Cast<Match>().Select(m => m.Value).ToArray();
 
-                            if (this.LookAheadIngredientEnumerationStepPart(word, words, index, recipe, subrecipeId, skippedIndexes, ref word))
+                            var enumerationPartResult = this.TryParseEnumerationPart(phrase, index, recipe.Ingredients, subrecipeId);
+                            if(enumerationPartResult.IsEnumerationPart)
                             {
                                 currentlyReadType = typeof(IngredientEnumerationPart);
-                            }
-                            else if (this.TryParseIngredientStepPart(word, words, index, recipe, subrecipeId, ref word))
-                            {
-                                currentlyReadType = typeof(IngredientPart);
-                                skippedIndexes.Add(index + 1);
+                                word = enumerationPartResult.OutputValue;
+                                skippedIndexes.AddRange(enumerationPartResult.SkippedIndexes);
                             }
                             else
                             {
-                                var timerPartResult = this.TryParseTimerPart(phrase, index);
-                                if (timerPartResult.IsTimerPart)
+                                var ingredientPartResult = this.TryParseIngredientPart(phrase, index, recipe.Ingredients, subrecipeId);
+                                if (ingredientPartResult.IsIngredientPart)
                                 {
-                                    currentlyReadType = typeof(TimerPart);
-                                    word = string.Concat(timerPartResult.OutputFormat, timerPartResult.OutputValue);
-                                    skippedIndexes.AddRange(timerPartResult.SkippedIndexes);
+                                    currentlyReadType = typeof(IngredientPart);
+                                    word = ingredientPartResult.OutputValue.ToString();
                                     skippedIndexes.Add(index + 1);
-                                }
-                                else if (this._actionDetector.IsAction(word.Trim()))
-                                {
-                                    currentlyReadType = typeof(ActionPart);
                                 }
                                 else
                                 {
-                                    currentlyReadType = typeof(TextPart);
+                                    var timerPartResult = this.TryParseTimerPart(phrase, index);
+                                    if (timerPartResult.IsTimerPart)
+                                    {
+                                        currentlyReadType = typeof(TimerPart);
+                                        word = string.Concat(timerPartResult.OutputFormat, timerPartResult.OutputValue);
+                                        skippedIndexes.AddRange(timerPartResult.SkippedIndexes);
+                                        skippedIndexes.Add(index + 1);
+                                    }
+                                    else if (this._actionDetector.IsAction(word.Trim()))
+                                    {
+                                        currentlyReadType = typeof(ActionPart);
+                                    }
+                                    else
+                                    {
+                                        currentlyReadType = typeof(TextPart);
+                                    }
                                 }
-                            } 
+                            }
 
                             if (previouslyReadType != null && previouslyReadType != currentlyReadType)
                             {
@@ -301,75 +309,6 @@ namespace E133.Parser
             this._subrecipeRepository = this._subrecipeRepositoryFactory(this._recipeCulture);
         }
 
-        private bool LookAheadIngredientEnumerationStepPart(string word, MatchCollection words, int index, QuickRecipe recipe, int subrecipeId, List<int> skippedIndexes, ref string result)
-        {
-            var ingredientIds = new List<string>();
-            var localSkippedIndexes = new List<int>();
-
-            if (this.TryParseIngredientStepPart(word, words, index, recipe, subrecipeId, ref word))
-            {
-                ingredientIds.Add(word);
-                localSkippedIndexes.Add(index + 1);
-                index++;
-                while (index < words.Count)
-                {
-                    if (localSkippedIndexes.Contains(index))
-                    {
-                        index++;
-                        continue;
-                    }
-
-                    word = words[index].Value.Trim();
-                    // TODO Localize this
-                    // TODO Verify future next word, because the rest of the sentence could start with this
-                    if (word == "," || word == "et")
-                    {
-                        localSkippedIndexes.Add(index);
-                    }
-                    else if (this.TryParseIngredientStepPart(word, words, index, recipe, subrecipeId, ref word))
-                    {
-                        ingredientIds.Add(word);
-                        localSkippedIndexes.Add(index);
-                        localSkippedIndexes.Add(index + 1);
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                    index++;
-                }
-            }
-
-            var isEnumeration = ingredientIds.Count > 1;
-            if (isEnumeration)
-            {
-                result = string.Join(",", ingredientIds);
-                skippedIndexes.AddRange(localSkippedIndexes);                
-            }
-
-            return isEnumeration;
-        }
-
-        private bool TryParseIngredientStepPart(string word, MatchCollection words, int index, QuickRecipe recipe, int subrecipeId, ref string result)
-        {
-            if (this._generalLanguageHelper.IsDeterminant(word) && index + 1 < words.Count)
-            {
-                var nextWord = words[index + 1].Value.Trim();
-
-                var referencedIngredient = recipe.Ingredients.FirstOrDefault(x => x.Name.Contains(nextWord) && x.SubrecipeId == subrecipeId);
-                if (referencedIngredient != null)
-                {
-                    result = referencedIngredient.Id.ToString();
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        // TEMP Public
         public ParseTimerPartResult TryParseTimerPart(IList<string> phrase, int index)
         {
             int time;
@@ -453,7 +392,89 @@ namespace E133.Parser
                 }
             }
 
-            return new ParseTimerPartResult { IsTimerPart = false };
+            return ParseTimerPartResult.NegativeResult;
+        }
+
+        public ParseIngredientPartResult TryParseIngredientPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
+        {
+            var word = phrase[index].Trim();
+            if (this._generalLanguageHelper.IsDeterminant(word))
+            {
+                index++;
+                while (index < phrase.Count)
+                {
+                    word = phrase[index].Trim();
+
+                    var referencedIngredient = ingredients.FirstOrDefault(x => x.Name.Contains(word) && x.SubrecipeId == subrecipeId);
+                    if (referencedIngredient != null)
+                    {
+                        return new ParseIngredientPartResult { IsIngredientPart = true, OutputValue = referencedIngredient.Id };
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+
+            return ParseIngredientPartResult.NegativeResult;
+        }
+
+        public ParseEnumerationPartResult TryParseEnumerationPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
+        {
+            var ingredientIds = new List<long>();
+            var skippedIndexes = new List<int>();
+            var word = phrase[index].Trim();
+
+            var ingredientPartResult = this.TryParseIngredientPart(phrase, index, ingredients, subrecipeId);
+            if (ingredientPartResult.IsIngredientPart)
+            {
+                ingredientIds.Add(ingredientPartResult.OutputValue);
+                skippedIndexes.Add(index + 1);
+                index++;
+                while (index < phrase.Count)
+                {
+                    if (skippedIndexes.Contains(index))
+                    {
+                        index++;
+                        continue;
+                    }
+
+                    word = phrase[index].Trim();
+                    // TODO Localize this
+                    // TODO Verify future next word, because the rest of the sentence could start with this
+                    if (word == "," || word == "et")
+                    {
+                        skippedIndexes.Add(index);
+                    }
+                    else
+                    {
+                        ingredientPartResult = this.TryParseIngredientPart(phrase, index, ingredients, subrecipeId);
+                        if (ingredientPartResult.IsIngredientPart)
+                        {
+                            ingredientIds.Add(ingredientPartResult.OutputValue);
+                            skippedIndexes.Add(index);
+                            skippedIndexes.Add(index + 1);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+
+                    index++;
+                }
+            }
+
+            var result = ParseEnumerationPartResult.NegativeResult;
+            if (ingredientIds.Count > 1)
+            {
+                var output = string.Join(",", ingredientIds);
+                
+                result = new ParseEnumerationPartResult { IsEnumerationPart = true, SkippedIndexes = skippedIndexes, OutputValue = output };                
+            }
+
+            return result;
         }
 
         private static void ClearUnusedSubrecipe(QuickRecipe recipe, int subrecipeId)

@@ -4,7 +4,7 @@ namespace E133.Parser.LanguageUtilities.French
     {
         public bool IsDeterminant(string word)
         {
-            return word == "le" || word == "la" || word == "les" || word == "l'" || word == "l�";
+            return word == "le" || word == "la" || word == "les" || word == "l'" || word == "l’";
         }
     }
 }
