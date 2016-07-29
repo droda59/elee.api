@@ -56,272 +56,100 @@ namespace E133.Parser.Tests
             Assert.False(result.IsTimerPart);
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Hour_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 heure", "PT1H")]
+        [InlineData("Brasser pendant 3 heures", "PT3H")]
+        [InlineData("Brasser pendant 3 h", "PT3H")]
+        public void TryParseTimerPart_Hours_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 1 heure";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1H", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(2, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Hours_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 minute", "PT1M")]
+        [InlineData("Brasser pendant 3 minutes", "PT3M")]
+        [InlineData("Brasser pendant 3 m", "PT3M")]
+        public void TryParseTimerPart_Minutes_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 3 heures";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3H", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(2, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_H_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 seconde", "PT1S")]
+        [InlineData("Brasser pendant 3 secondes", "PT3S")]
+        [InlineData("Brasser pendant 3 s", "PT3S")]
+        public void TryParseTimerPart_Seconds_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 3 h";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3H", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(2, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Minute_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 2 à 3 heures", "PT2H")]
+        [InlineData("Brasser pendant 2 à 3 h", "PT2H")]
+        public void TryParseTimerPart_RangePart_Hours_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 1 minute";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1M", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
+            Assert.Equal(output, result.OutputValue);
+            Assert.Equal(4, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Minutes_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 2 à 3 minutes", "PT2M")]
+        [InlineData("Brasser pendant 2 à 3 m", "PT2M")]
+        public void TryParseTimerPart_RangePart_Minutes_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 3 minutes";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3M", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
+            Assert.Equal(output, result.OutputValue);
+            Assert.Equal(4, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_M_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 2 à 3 secondes", "PT2S")]
+        [InlineData("Brasser pendant 2 à 3 s", "PT2S")]
+        public void TryParseTimerPart_RangePart_Seconds_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 3 m";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3M", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
+            Assert.Equal(output, result.OutputValue);
+            Assert.Equal(4, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Seconde_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 heure 1 minute", "PT1H1M")]
+        [InlineData("Brasser pendant 2 heures 1 minute", "PT2H1M")]
+        [InlineData("Brasser pendant 1 heure 2 minutes", "PT1H2M")]
+        [InlineData("Brasser pendant 2 heures 2 minutes", "PT2H2M")]
+        [InlineData("Brasser pendant 2 heures 2 m", "PT2H2M")]
+        [InlineData("Brasser pendant 2 h 2 minutes", "PT2H2M")]
+        [InlineData("Brasser pendant 2 h 2 m", "PT2H2M")]
+        public void TryParseTimerPart_MultiPart_HoursMinutes_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 1 seconde";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1S", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_Secondes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 3 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3S", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_S_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 3 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT3S", result.OutputValue);
-            Assert.Equal(2, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_Hours_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 heures";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(4, result.SkippedIndexes.Count());
         }
 
         [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_H_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 h";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_Minutes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_M_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 m";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_Seconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_RangePart_S_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 à 3 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HourMinute_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 1 heure 1 minute";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1H1M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursMinute_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 1 minute";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H1M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HourMinutes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 1 heure 2 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1H2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursMinutes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 2 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursM_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 2 m";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HMinutes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 h 2 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HM_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 h 2 m";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2M", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursUnspecifiedMinutes_ReturnsHoursWithMinutes()
+        public void TryParseTimerPart_MultiPart_HoursUnspecifiedMinutes_ReturnsHoursWithMinutes()
         {
             var phrase = "Brasser pendant 2 heures 2";
 
@@ -332,152 +160,42 @@ namespace E133.Parser.Tests
             Assert.Equal(3, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HourSecond_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 heure 1 seconde", "PT1H1S")]
+        [InlineData("Brasser pendant 1 heure 2 secondes", "PT1H2S")]
+        [InlineData("Brasser pendant 2 heures 1 seconde", "PT2H1S")]
+        [InlineData("Brasser pendant 2 heures 2 secondes", "PT2H2S")]
+        [InlineData("Brasser pendant 2 heures 2 s", "PT2H2S")]
+        [InlineData("Brasser pendant 2 h 2 secondes", "PT2H2S")]
+        [InlineData("Brasser pendant 2 h 2 s", "PT2H2S")]
+        public void TryParseTimerPart_MultiPart_HourSecond_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 1 heure 1 seconde";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1H1S", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
+            Assert.Equal(4, result.SkippedIndexes.Count());
+        }
+
+        [Theory]
+        [InlineData("Brasser pendant 1 minute 1 seconde", "PT1M1S")]
+        [InlineData("Brasser pendant 1 minute 2 secondes", "PT1M2S")]
+        [InlineData("Brasser pendant 2 minutes 1 seconde", "PT2M1S")]
+        [InlineData("Brasser pendant 2 minutes 2 secondes", "PT2M2S")]
+        [InlineData("Brasser pendant 2 minutes 2 s", "PT2M2S")]
+        [InlineData("Brasser pendant 2 m 2 secondes", "PT2M2S")]
+        [InlineData("Brasser pendant 2 m 2 s", "PT2M2S")]
+        public void TryParseTimerPart_MultiPart_MinuteSecond_ReturnsResult(string phrase, string output)
+        {
+            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
+
+            Assert.True(result.IsTimerPart);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(4, result.SkippedIndexes.Count());
         }
 
         [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursSeconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 2 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HoursS_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 2 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HSeconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 h 2 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_HS_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 h 2 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinuteSecond_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 1 minutes 1 seconde";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1M1S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinutesSecond_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 minutes 1 seconde";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M1S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinuteSecondes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 1 minute 2 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1M2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinutesSecondes_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 minutes 2 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinutesS_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 minutes 2 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MSeconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 m 2 secondes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MS_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 m 2 s";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M2S", result.OutputValue);
-            Assert.Equal(4, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_MinutesUnspecifiedSeconds_ReturnsMinutesWithSeconds()
+        public void TryParseTimerPart_MultiPart_MinutesUnspecifiedSeconds_ReturnsMinutesWithSeconds()
         {
             var phrase = "Brasser pendant 2 minutes 2";
 
@@ -488,99 +206,51 @@ namespace E133.Parser.Tests
             Assert.Equal(3, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_HourUnspecifiedMinutes_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 heure 30 à 3 heures", "PT1H30M")]
+        [InlineData("Brasser pendant 2 heures 30 à 3 heures", "PT2H30M")]
+        public void TryParseTimerPart_MultiPart_Range_HourUnspecifiedMinutes_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 1 heure 30 à 3 heures";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1H30M", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(6, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_HoursUnspecifiedMinutes_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 2 heures 1 minute à 3 heures", "PT2H1M")]
+        [InlineData("Brasser pendant 2 heures 30 minutes à 3 heures", "PT2H30M")]
+        public void TryParseTimerPart_MultiPart_Range_HoursMinute_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 2 heures 30 à 3 heures";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H30M", result.OutputValue);
-            Assert.Equal(6, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_HoursMinute_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 heures 1 minute à 3 heures";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H1M", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(7, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_HoursMinutes_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 1 minute 30 à 3 minutes", "PT1M30S")]
+        [InlineData("Brasser pendant 2 minutes 30 à 3 minutes", "PT2M30S")]
+        public void TryParseTimerPart_MultiPart_Range_MinuteUnspecifiedSeconds_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 2 heures 30 minutes à 3 heures";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2H30M", result.OutputValue);
-            Assert.Equal(7, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_MinuteUnspecifiedSeconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 1 minute 30 à 3 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT1M30S", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(6, result.SkippedIndexes.Count());
         }
 
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_MinutesUnspecifiedSeconds_ReturnsTrue()
+        [Theory]
+        [InlineData("Brasser pendant 2 minutes 1 seconde à 3 minutes", "PT2M1S")]
+        [InlineData("Brasser pendant 2 minutes 30 secondes à 3 minutes", "PT2M30S")]
+        public void TryParseTimerPart_MultiPart_Range_MinutesSecond_ReturnsResult(string phrase, string output)
         {
-            var phrase = "Brasser pendant 2 minutes 30 à 3 minutes";
-
             var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
 
             Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M30S", result.OutputValue);
-            Assert.Equal(6, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_MinutesSecond_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 minutes 1 seconde à 3 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M1S", result.OutputValue);
-            Assert.Equal(7, result.SkippedIndexes.Count());
-        }
-
-        [Fact]
-        public void TryParseTimerPart_CurrentWordTimerPart_MultiPart_Range_MinutesSeconds_ReturnsTrue()
-        {
-            var phrase = "Brasser pendant 2 minutes 30 secondes à 3 minutes";
-
-            var result = this._parser.TryParseTimerPart(phrase.Split(' '), 2);
-
-            Assert.True(result.IsTimerPart);
-            Assert.Equal("PT2M30S", result.OutputValue);
+            Assert.Equal(output, result.OutputValue);
             Assert.Equal(7, result.SkippedIndexes.Count());
         }
     }
