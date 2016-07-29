@@ -30,14 +30,12 @@ namespace E133.Parser
 
         private readonly Func<CultureInfo, IActionDetector> _actionDetectorFactory;
         private readonly Func<CultureInfo, ITimerDetector> _timerDetectorFactory;
-        private readonly Func<CultureInfo, IIngredientDetector> _ingredientDetectorFactory;
         private readonly Func<CultureInfo, IMeasureUnitDetector> _measureUnitDetectorFactory;
         private readonly Func<CultureInfo, ILanguageHelper> _languageHelperFactory;
         private readonly Func<CultureInfo, ISubrecipeRepository> _subrecipeRepositoryFactory;
 
         private IActionDetector _actionDetector;
         private ITimerDetector _timerDetector;
-        private IIngredientDetector _ingredientDetector;
         private IMeasureUnitDetector _measureUnitDetector;
         private ILanguageHelper _generalLanguageHelper;
         private ISubrecipeRepository _subrecipeRepository;
@@ -48,7 +46,6 @@ namespace E133.Parser
             IHtmlLoader htmlLoader,
             Func<CultureInfo, IActionDetector> actionDetectorFactory, 
             Func<CultureInfo, ITimerDetector> timerDetectorFactory,
-            Func<CultureInfo, IIngredientDetector> ingredientDetectorFactory,
             Func<CultureInfo, IMeasureUnitDetector> measureUnitDetectorFactory,
             Func<CultureInfo, ILanguageHelper> languageHelperFactory,
             Func<CultureInfo, ISubrecipeRepository> subrecipeRepositoryFactory)
@@ -56,12 +53,15 @@ namespace E133.Parser
             this._htmlLoader = htmlLoader;
             this._actionDetectorFactory = actionDetectorFactory;
             this._timerDetectorFactory = timerDetectorFactory;
-            this._ingredientDetectorFactory = ingredientDetectorFactory;
             this._measureUnitDetectorFactory = measureUnitDetectorFactory;
             this._languageHelperFactory = languageHelperFactory;
             this._subrecipeRepositoryFactory = subrecipeRepositoryFactory;
 
-            this._htmlLoader.Initialize();
+            if (this._htmlLoader != null)
+            {
+                this._htmlLoader.Initialize();
+            }
+            
             this.Base = new TBase();
             
             // TODO Localize and put somewhere else
@@ -184,6 +184,7 @@ namespace E133.Parser
 
                             var word = words[index].Value;
                             var previouslyReadType = currentlyReadType;
+                            var phrase = words.Cast<Match>().Select(m => m.Value).ToArray();
 
                             if (this.LookAheadIngredientEnumerationStepPart(word, words, index, recipe, subrecipeId, skippedIndexes, ref word))
                             {
@@ -194,19 +195,25 @@ namespace E133.Parser
                                 currentlyReadType = typeof(IngredientPart);
                                 skippedIndexes.Add(index + 1);
                             }
-                            else if (this.TryParseTimerStepPart(word, words, index, skippedIndexes, ref word))
-                            {
-                                currentlyReadType = typeof(TimerPart);
-                                skippedIndexes.Add(index + 1);
-                            }
-                            else if (this._actionDetector.IsAction(word.Trim()))
-                            {
-                                currentlyReadType = typeof(ActionPart);
-                            }
                             else
                             {
-                                currentlyReadType = typeof(TextPart);
-                            }
+                                var timerPartResult = this.TryParseTimerPart(phrase, index);
+                                if (timerPartResult.IsTimerPart)
+                                {
+                                    currentlyReadType = typeof(TimerPart);
+                                    word = string.Concat(timerPartResult.OutputFormat, timerPartResult.OutputValue);
+                                    skippedIndexes.AddRange(timerPartResult.SkippedIndexes);
+                                    skippedIndexes.Add(index + 1);
+                                }
+                                else if (this._actionDetector.IsAction(word.Trim()))
+                                {
+                                    currentlyReadType = typeof(ActionPart);
+                                }
+                                else
+                                {
+                                    currentlyReadType = typeof(TextPart);
+                                }
+                            } 
 
                             if (previouslyReadType != null && previouslyReadType != currentlyReadType)
                             {
@@ -277,20 +284,18 @@ namespace E133.Parser
             
             document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
 
-            this.InitializeCulture(document);
+            var language = this.GetRecipeIetfLanguage(document);
+            this.InitializeCulture(language);
 
             return document;
         }
 
-        private void InitializeCulture(HtmlDocument document)
+        public void InitializeCulture(string language)
         {
-            var language = this.GetRecipeIetfLanguage(document);
-
             this._recipeCulture = new CultureInfo(language);
 
             this._actionDetector = this._actionDetectorFactory(this._recipeCulture);
             this._timerDetector = this._timerDetectorFactory(this._recipeCulture);
-            this._ingredientDetector = this._ingredientDetectorFactory(this._recipeCulture);
             this._measureUnitDetector = this._measureUnitDetectorFactory(this._recipeCulture);
             this._generalLanguageHelper = this._languageHelperFactory(this._recipeCulture);
             this._subrecipeRepository = this._subrecipeRepositoryFactory(this._recipeCulture);
@@ -364,42 +369,52 @@ namespace E133.Parser
             return false;
         }
 
-        private bool TryParseTimerStepPart(string word, MatchCollection words, int index, List<int> skippedIndexes, ref string result)
+        // TEMP Public
+        public ParseTimerPartResult TryParseTimerPart(IList<string> phrase, int index)
         {
             int time;
+            var word = phrase[index].Trim();
             if (int.TryParse(word, out time))
             {
-                var localSkippedIndexes = new List<int> { index };
+                var skippedIndexes = new List<int> { index };
                 var durationBuilder = new StringBuilder().AppendFormat("PT{0}", time);
                 var isTime = false;
                 var rangeDuration = false;
 
                 index++;
-                while (index < words.Count)
+                while (index < phrase.Count)
                 {
-                    word = words[index].Value.Trim();
+                    word = phrase[index].Trim();
 
                     // If we find another number, we add it in the duration only if it's not a range duration ("1 to 2 minutes")
-                    // If it's a range duration, we want to keep only the first number for the final duration format
+                    // We do this because if it's a range duration, we want to keep only the first number for the final duration format
                     if (int.TryParse(word, out time))
                     {
                         if (!rangeDuration)
                         {
                             durationBuilder.Append(time);
                         }
-                        localSkippedIndexes.Add(index);
+                        skippedIndexes.Add(index);
                     }
                     else if (word == "à")
                     {
                         rangeDuration = true;
-                        localSkippedIndexes.Add(index);
+                        skippedIndexes.Add(index);
                     }
                     else if (this._timerDetector.IsTimeQualifier(word))
                     {
                         isTime = true;
+                        var durationString = durationBuilder.ToString();
                         var qualifier = this._timerDetector.GetTimeQualifier(word);
-                        durationBuilder.Append(qualifier);
-                        localSkippedIndexes.Add(index);
+                        // If qualifier is already in the duration string, do not stack formats.
+                        // This may happen in cases like "1 hour 30 to 2 hours", where the second 'hours' will try to stack
+                        // If last character is a letter, do not stack other formats. 
+                        // This may happen in cases like "1 hour 30 minutes to 2 hours", where the second 'hours' will try to stack after 'minutes'  
+                        if (int.TryParse(durationString.Last().ToString(), out time) && !durationString.Contains(qualifier))
+                        {
+                            durationBuilder.Append(qualifier);
+                        }
+                        skippedIndexes.Add(index);
                     }
                     // If we find something that is not from a time notation, we end this
                     else
@@ -431,14 +446,14 @@ namespace E133.Parser
                         }
                     }
 
-                    result = "{" + string.Join(" ", localSkippedIndexes.Select(x => words[x])) + "}" + durationBuilder.ToString();
-                    skippedIndexes.AddRange(localSkippedIndexes);                
+                    var outputFormat = "{" + string.Join(" ", skippedIndexes.Select(x => phrase[x])) + "}";
+                    var outputValue = durationBuilder.ToString();
 
-                    return true;
+                    return new ParseTimerPartResult { IsTimerPart = true, SkippedIndexes = skippedIndexes, OutputFormat = outputFormat, OutputValue = outputValue };
                 }
             }
 
-            return false;
+            return new ParseTimerPartResult { IsTimerPart = false };
         }
 
         private static void ClearUnusedSubrecipe(QuickRecipe recipe, int subrecipeId)

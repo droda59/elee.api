@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 
-using E133.Business.Bases;
 using E133.Parser.LanguageUtilities;
 
 using Autofac;
@@ -23,7 +22,6 @@ namespace E133.Parser
 
             RegisterDetector<IActionDetector>(builder);
             RegisterDetector<ITimerDetector>(builder);
-            RegisterDetector<IIngredientDetector>(builder);
             RegisterDetector<IMeasureUnitDetector>(builder);
             RegisterDetector<ILanguageHelper>(builder);
             RegisterDetector<ISubrecipeRepository>(builder);
