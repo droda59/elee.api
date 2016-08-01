@@ -190,7 +190,7 @@ namespace E133.Parser
                             if(enumerationPartResult.IsEnumerationPart)
                             {
                                 currentlyReadType = typeof(IngredientEnumerationPart);
-                                word = enumerationPartResult.OutputValue;
+                                word = string.Join(",", enumerationPartResult.IngredientIds);
                                 skippedIndexes.AddRange(enumerationPartResult.SkippedIndexes);
                             }
                             else
@@ -199,8 +199,8 @@ namespace E133.Parser
                                 if (ingredientPartResult.IsIngredientPart)
                                 {
                                     currentlyReadType = typeof(IngredientPart);
-                                    word = ingredientPartResult.OutputValue.ToString();
-                                    skippedIndexes.Add(index + 1);
+                                    word = ingredientPartResult.IngredientId.ToString();
+                                    skippedIndexes.AddRange(ingredientPartResult.SkippedIndexes);
                                 }
                                 else
                                 {
@@ -284,21 +284,7 @@ namespace E133.Parser
 
         protected abstract HtmlNodeCollection GetSubrecipeSteps(HtmlNode stepSubrecipeNode);
 
-        private async Task<HtmlDocument> LoadDocument(Uri uri)
-        {
-            var content = await this._htmlLoader.ReadHtmlAsync(uri);
-            
-            var document = new HtmlDocument();
-            
-            document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
-
-            var language = this.GetRecipeIetfLanguage(document);
-            this.InitializeCulture(language);
-
-            return document;
-        }
-
-        public void InitializeCulture(string language)
+        internal void InitializeCulture(string language)
         {
             this._recipeCulture = new CultureInfo(language);
 
@@ -309,7 +295,7 @@ namespace E133.Parser
             this._subrecipeRepository = this._subrecipeRepositoryFactory(this._recipeCulture);
         }
 
-        public ParseTimerPartResult TryParseTimerPart(IList<string> phrase, int index)
+        internal ParseTimerPartResult TryParseTimerPart(IList<string> phrase, int index)
         {
             int time;
             var word = phrase[index].Trim();
@@ -335,6 +321,7 @@ namespace E133.Parser
                         }
                         skippedIndexes.Add(index);
                     }
+                    // TODO Localize this
                     else if (word == "à")
                     {
                         rangeDuration = true;
@@ -395,11 +382,12 @@ namespace E133.Parser
             return ParseTimerPartResult.NegativeResult;
         }
 
-        public ParseIngredientPartResult TryParseIngredientPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
+        internal ParseIngredientPartResult TryParseIngredientPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
         {
             var word = phrase[index].Trim();
             if (this._generalLanguageHelper.IsDeterminant(word))
             {
+                var skippedIndexes = new List<int> { index };
                 index++;
                 while (index < phrase.Count)
                 {
@@ -408,7 +396,9 @@ namespace E133.Parser
                     var referencedIngredient = ingredients.FirstOrDefault(x => x.Name.Contains(word) && x.SubrecipeId == subrecipeId);
                     if (referencedIngredient != null)
                     {
-                        return new ParseIngredientPartResult { IsIngredientPart = true, OutputValue = referencedIngredient.Id };
+                        skippedIndexes.Add(index);
+
+                        return new ParseIngredientPartResult { IsIngredientPart = true, SkippedIndexes = skippedIndexes, IngredientId = referencedIngredient.Id };
                     }
                     else
                     {
@@ -420,7 +410,7 @@ namespace E133.Parser
             return ParseIngredientPartResult.NegativeResult;
         }
 
-        public ParseEnumerationPartResult TryParseEnumerationPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
+        internal ParseEnumerationPartResult TryParseEnumerationPart(IList<string> phrase, int index, IEnumerable<Ingredient> ingredients, int subrecipeId)
         {
             var ingredientIds = new List<long>();
             var skippedIndexes = new List<int>();
@@ -429,11 +419,13 @@ namespace E133.Parser
             var ingredientPartResult = this.TryParseIngredientPart(phrase, index, ingredients, subrecipeId);
             if (ingredientPartResult.IsIngredientPart)
             {
-                ingredientIds.Add(ingredientPartResult.OutputValue);
-                skippedIndexes.Add(index + 1);
+                ingredientIds.Add(ingredientPartResult.IngredientId);
+                skippedIndexes.AddRange(ingredientPartResult.SkippedIndexes);
                 index++;
                 while (index < phrase.Count)
                 {
+                    // When we find an ingredient, the future indexes are included in the skippedIndexes, so when the current
+                    // index is on this future skipped part, we skip it. 
                     if (skippedIndexes.Contains(index))
                     {
                         index++;
@@ -442,19 +434,24 @@ namespace E133.Parser
 
                     word = phrase[index].Trim();
                     // TODO Localize this
-                    // TODO Verify future next word, because the rest of the sentence could start with this
                     if (word == "," || word == "et")
                     {
-                        skippedIndexes.Add(index);
+                        if (index + 1 < phrase.Count)
+                        {
+                            ingredientPartResult = this.TryParseIngredientPart(phrase, index + 1, ingredients, subrecipeId);
+                            if (ingredientPartResult.IsIngredientPart)
+                            {
+                                skippedIndexes.Add(index);
+                            }
+                        }
                     }
                     else
                     {
                         ingredientPartResult = this.TryParseIngredientPart(phrase, index, ingredients, subrecipeId);
                         if (ingredientPartResult.IsIngredientPart)
                         {
-                            ingredientIds.Add(ingredientPartResult.OutputValue);
-                            skippedIndexes.Add(index);
-                            skippedIndexes.Add(index + 1);
+                            ingredientIds.Add(ingredientPartResult.IngredientId);
+                            skippedIndexes.AddRange(ingredientPartResult.SkippedIndexes);
                         }
                         else
                         {
@@ -469,12 +466,24 @@ namespace E133.Parser
             var result = ParseEnumerationPartResult.NegativeResult;
             if (ingredientIds.Count > 1)
             {
-                var output = string.Join(",", ingredientIds);
-                
-                result = new ParseEnumerationPartResult { IsEnumerationPart = true, SkippedIndexes = skippedIndexes, OutputValue = output };                
+                result = new ParseEnumerationPartResult { IsEnumerationPart = true, SkippedIndexes = skippedIndexes, IngredientIds = ingredientIds };                
             }
 
             return result;
+        }
+
+        private async Task<HtmlDocument> LoadDocument(Uri uri)
+        {
+            var content = await this._htmlLoader.ReadHtmlAsync(uri);
+            
+            var document = new HtmlDocument();
+            
+            document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+
+            var language = this.GetRecipeIetfLanguage(document);
+            this.InitializeCulture(language);
+
+            return document;
         }
 
         private static void ClearUnusedSubrecipe(QuickRecipe recipe, int subrecipeId)
