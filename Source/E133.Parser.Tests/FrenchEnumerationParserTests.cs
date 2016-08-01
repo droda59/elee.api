@@ -141,5 +141,17 @@ namespace E133.Parser.Tests
                 item => Assert.Equal(ingredientIds[1], item),
                 item => Assert.Equal(ingredientIds[2], item));
         }
+
+        [Theory]
+        [InlineData("Ajouter tous les ingrédients et continuer")]
+        public void TryParseEnumerationPart_HasIngredientPart_AllIngredients_ReturnsResult(string phrase) 
+        {
+            var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+
+            Assert.True(result.IsEnumerationPart);
+            Assert.Equal(3, result.SkippedIndexes.Count());
+            Assert.Equal(this._ingredients.Count(), result.IngredientIds.Count());
+            Assert.All(this._ingredients, x => Assert.Contains(x.Id, result.IngredientIds));
+        }
     }
 }

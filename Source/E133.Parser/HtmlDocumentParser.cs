@@ -375,7 +375,13 @@ namespace E133.Parser
                     var outputFormat = "{" + string.Join(" ", skippedIndexes.Select(x => phrase[x])) + "}";
                     var outputValue = durationBuilder.ToString();
 
-                    return new ParseTimerPartResult { IsTimerPart = true, SkippedIndexes = skippedIndexes, OutputFormat = outputFormat, OutputValue = outputValue };
+                    return new ParseTimerPartResult 
+                    { 
+                        IsTimerPart = true, 
+                        SkippedIndexes = skippedIndexes, 
+                        OutputFormat = outputFormat, 
+                        OutputValue = outputValue 
+                    };
                 }
             }
 
@@ -398,7 +404,12 @@ namespace E133.Parser
                     {
                         skippedIndexes.Add(index);
 
-                        return new ParseIngredientPartResult { IsIngredientPart = true, SkippedIndexes = skippedIndexes, IngredientId = referencedIngredient.Id };
+                        return new ParseIngredientPartResult 
+                        { 
+                            IsIngredientPart = true, 
+                            SkippedIndexes = skippedIndexes, 
+                            IngredientId = referencedIngredient.Id 
+                        };
                     }
                     else
                     {
@@ -415,6 +426,24 @@ namespace E133.Parser
             var ingredientIds = new List<long>();
             var skippedIndexes = new List<int>();
             var word = phrase[index].Trim();
+
+            // TODO Localize this
+            if (index + 2 < phrase.Count
+                && phrase[index].Trim() == "tous"
+                && phrase[index + 1].Trim() == "les"
+                && phrase[index + 2].Trim() == "ingrédients")
+            {
+                skippedIndexes.Add(index);
+                skippedIndexes.Add(index + 1);
+                skippedIndexes.Add(index + 2);
+
+                return new ParseEnumerationPartResult 
+                { 
+                    IsEnumerationPart = true, 
+                    SkippedIndexes = skippedIndexes, 
+                    IngredientIds = ingredients.Where(x => x.SubrecipeId == subrecipeId).Select(x => x.Id).ToList() 
+                };
+            }
 
             var ingredientPartResult = this.TryParseIngredientPart(phrase, index, ingredients, subrecipeId);
             if (ingredientPartResult.IsIngredientPart)
@@ -463,13 +492,17 @@ namespace E133.Parser
                 }
             }
 
-            var result = ParseEnumerationPartResult.NegativeResult;
             if (ingredientIds.Count > 1)
             {
-                result = new ParseEnumerationPartResult { IsEnumerationPart = true, SkippedIndexes = skippedIndexes, IngredientIds = ingredientIds };                
+                return new ParseEnumerationPartResult 
+                {
+                    IsEnumerationPart = true, 
+                    SkippedIndexes = skippedIndexes, 
+                    IngredientIds = ingredientIds 
+                };                
             }
 
-            return result;
+            return ParseEnumerationPartResult.NegativeResult;
         }
 
         private async Task<HtmlDocument> LoadDocument(Uri uri)
