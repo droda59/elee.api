@@ -299,7 +299,7 @@ namespace E133.Parser
         {
             int time;
             var word = phrase[index].Trim();
-            if (int.TryParse(word, out time))
+            if (this._generalLanguageHelper.IsNumber(word, out time))
             {
                 var skippedIndexes = new List<int> { index };
                 var durationBuilder = new StringBuilder().AppendFormat("PT{0}", time);
@@ -313,7 +313,7 @@ namespace E133.Parser
 
                     // If we find another number, we add it in the duration only if it's not a range duration ("1 to 2 minutes")
                     // We do this because if it's a range duration, we want to keep only the first number for the final duration format
-                    if (int.TryParse(word, out time))
+                    if (this._generalLanguageHelper.IsNumber(word, out time))
                     {
                         if (!rangeDuration)
                         {
@@ -336,7 +336,7 @@ namespace E133.Parser
                         // This may happen in cases like "1 hour 30 to 2 hours", where the second 'hours' will try to stack
                         // If last character is a letter, do not stack other formats. 
                         // This may happen in cases like "1 hour 30 minutes to 2 hours", where the second 'hours' will try to stack after 'minutes'  
-                        if (int.TryParse(durationString.Last().ToString(), out time) && !durationString.Contains(qualifier))
+                        if (this._generalLanguageHelper.IsNumber(durationString.Last().ToString(), out time) && !durationString.Contains(qualifier))
                         {
                             durationBuilder.Append(qualifier);
                         }
@@ -356,9 +356,9 @@ namespace E133.Parser
                     var durationString = durationBuilder.ToString();
                     // If this is a time notation, and the last character is an integer, it means we found something like "1 hour 30"
                     // We then have to find the last unit to append the lesser unit
-                    if (int.TryParse(durationString.Last().ToString(), out time))
+                    if (this._generalLanguageHelper.IsNumber(durationString.Last().ToString(), out time))
                     {
-                        var lastChar = durationString.Last(x => !int.TryParse(x.ToString(), out time));
+                        var lastChar = durationString.Last(x => !this._generalLanguageHelper.IsNumber(x.ToString(), out time));
                         switch (lastChar)
                         {
                             case 'H': 
