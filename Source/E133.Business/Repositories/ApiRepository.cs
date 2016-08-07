@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -81,7 +81,9 @@ namespace E133.Business.Repositories
                 {
                     var content = await data.Content.ReadAsStringAsync();
                     
-                    recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content);
+                    recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
+                        .Where(x => x.Title.Contains(query))
+                        .ToList();
                 }
             }
             
