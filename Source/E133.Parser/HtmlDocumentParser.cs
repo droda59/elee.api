@@ -301,8 +301,6 @@ namespace E133.Parser
             var quantityString = matches[0].Value;
             var hasQuantity = this._generalLanguageHelper.TryParseNumber(quantityString, this._recipeCulture, out quantity);
 
-            // var readMeasureUnit = matches.Count > 1 && hasQuantity ? matches[1].Value : string.Empty;
-            // var measureUnit = this._measureUnitDetector.GetMeasureUnit(readMeasureUnit);
             MeasureUnit measureUnit = MeasureUnit.Unit;
             if (hasQuantity)
             {
