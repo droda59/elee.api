@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace E133.Parser.LanguageUtilities.French
 {
     internal class FrenchLanguageHelper : ILanguageHelper
     {
-        private static readonly IDictionary<string, int> NumberWords = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase) 
+        private static readonly IDictionary<string, double> NumberWords = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) 
         {
+            { "½", 0.5 },
+            { "¼", 0.25 },
+            { "¾", 0.75 },
             { "un", 1 },
             { "une", 1 },
             { "deux", 2 },
@@ -28,13 +32,18 @@ namespace E133.Parser.LanguageUtilities.French
             return word == "le" || word == "la" || word == "les" || word == "l'" || word == "l’";
         }
 
-        public bool IsNumber(string word, out int number)
+        public bool TryParseNumber(string word, out double number)
         {
-            if (int.TryParse(word, out number))
+            return this.TryParseNumber(word, CultureInfo.InvariantCulture, out number);
+        }
+
+        public bool TryParseNumber(string word, CultureInfo culture, out double number)
+        {
+            if (double.TryParse(word, NumberStyles.Any, culture, out number))
             {
                 return true;
             }
-            else if (FrenchLanguageHelper.NumberWords.TryGetValue(word, out number))
+            else if (NumberWords.TryGetValue(word, out number))
             {
                 return true;
             }

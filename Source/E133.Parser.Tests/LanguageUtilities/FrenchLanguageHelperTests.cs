@@ -16,15 +16,18 @@ namespace E133.Parser.Tests.LanguageUtilities
 
         [Theory]
         [InlineData("any")]
-        public void IsNumber_IsNotANumber_ReturnsResult(string word)
+        public void TryParseNumber_IsNotANumber_ReturnsResult(string word)
         {
-            int number;
-            var result = this._helper.IsNumber(word, out number);
+            double number;
+            var result = this._helper.TryParseNumber(word, out number);
 
             Assert.False(result);
         }
 
         [Theory]
+        [InlineData("½", 0.5)]
+        [InlineData("¼", 0.25)]
+        [InlineData("¾", 0.75)]
         [InlineData("un", 1)]
         [InlineData("une", 1)]
         [InlineData("deux", 2)]
@@ -39,9 +42,9 @@ namespace E133.Parser.Tests.LanguageUtilities
         [InlineData("douze", 12)]
         [InlineData("quinze", 15)]
         [InlineData("trente", 30)]
-        public void IsNumber_IsANumber_ReturnsResult(string word, int number)
+        public void TryParseNumber_IsANumber_ReturnsResult(string word, double number)
         {
-            var result = this._helper.IsNumber(word, out number);
+            var result = this._helper.TryParseNumber(word, out number);
 
             Assert.True(result);
         }
@@ -61,9 +64,9 @@ namespace E133.Parser.Tests.LanguageUtilities
         [InlineData("Douze", 12)]
         [InlineData("Quinze", 15)]
         [InlineData("Trente", 30)]
-        public void IsNumber_IsANumber_Caps_ReturnsResult(string word, int number)
+        public void TryParseNumber_IsANumber_Caps_ReturnsResult(string word, double number)
         {
-            var result = this._helper.IsNumber(word, out number);
+            var result = this._helper.TryParseNumber(word, out number);
 
             Assert.True(result);
         }

@@ -26,7 +26,6 @@ namespace E133.Parser
         private readonly Regex _ingredientExpression;
         private readonly Regex _ingredientFullExpression;
         private readonly Regex _ingredientUnitExpression;
-        private readonly Regex _wordExpression;
 
         private readonly Func<CultureInfo, IActionDetector> _actionDetectorFactory;
         private readonly Func<CultureInfo, ITimerDetector> _timerDetectorFactory;
@@ -65,7 +64,6 @@ namespace E133.Parser
             this.Base = new TBase();
             
             // TODO Localize and put somewhere else
-            this._wordExpression = new Regex(@"[\w()°]+['’]*|[,]|[\)]\b", RegexOptions.Compiled);
             this._quantityExpression = new Regex(@"[\xbc-\xbe\w]+[\xbc-\xbe\w'’,./]*", RegexOptions.Compiled);
             this._ingredientExpression = new Regex(@"(?<=[a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%] de | d'| d’)([a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%]+)(, [,\w\s]+)*", RegexOptions.Compiled);
             this._ingredientFullExpression = new Regex(@"([a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%]+)(, [,\w\s]+)*", RegexOptions.Compiled);
@@ -141,7 +139,7 @@ namespace E133.Parser
                     Console.WriteLine("Found subrecipe: " + title);  
 
                     var subrecipeIngredientNodes = this.GetSubrecipeIngredientNodesFromParent(subrecipeNode);
-                    this.ParseIngredients(subrecipeIngredientNodes, recipe, subrecipeIndex, ref ingredientId, ref stepId);
+                    this.CreateIngredientsFromNodes(subrecipeIngredientNodes, recipe, subrecipeIndex, ref ingredientId, ref stepId);
                 }
             }
             // TODO Check if recipes exist with subrecipes AND orphans
@@ -149,7 +147,7 @@ namespace E133.Parser
             {
                 var ingredientsSection = this.GetIngredientSection(document);
                 var orphanIngredientNodes = this.GetIngredientNodesFromParent(ingredientsSection);
-                this.ParseIngredients(orphanIngredientNodes, recipe, PreparationSubrecipeId, ref ingredientId, ref stepId);
+                this.CreateIngredientsFromNodes(orphanIngredientNodes, recipe, PreparationSubrecipeId, ref ingredientId, ref stepId);
             }
 
             var stepSubrecipeNodes = this.GetStepSections(document);
@@ -168,7 +166,7 @@ namespace E133.Parser
                     foreach (var splitPhrase in splitPhrases)
                     {
                         var step = new Step { Id = stepId++, SubrecipeId = subrecipeId };
-                        var words = this._wordExpression.Matches(splitPhrase);
+                        var words = splitPhrase.SplitPhrase();
                         var index = 0;
                         var skippedIndexes = new List<int>();
                         var phraseBuilder = new StringBuilder();
@@ -182,7 +180,7 @@ namespace E133.Parser
                                 continue;
                             }
 
-                            var word = words[index].Value;
+                            var word = words[index];
                             var previouslyReadType = currentlyReadType;
                             var phrase = words.Cast<Match>().Select(m => m.Value).ToArray();
 
@@ -295,11 +293,77 @@ namespace E133.Parser
             this._subrecipeRepository = this._subrecipeRepositoryFactory(this._recipeCulture);
         }
 
+        internal Ingredient ParseIngredientFromString(string originalString)
+        {
+            double quantity;
+            var ingredientString = originalString.Replace("\t", " ");
+            var matches = this._quantityExpression.Matches(ingredientString.Replace("\t", " "));
+            var quantityString = matches[0].Value;
+            var hasQuantity = this._generalLanguageHelper.TryParseNumber(quantityString, this._recipeCulture, out quantity);
+
+            // var readMeasureUnit = matches.Count > 1 && hasQuantity ? matches[1].Value : string.Empty;
+            // var measureUnit = this._measureUnitDetector.GetMeasureUnit(readMeasureUnit);
+            MeasureUnit measureUnit = MeasureUnit.Unit;
+            if (hasQuantity)
+            {
+                var ingredientStringWithoutQuantity = ingredientString.Replace($"{quantityString} ", string.Empty);
+                foreach (var enumValue in Enum.GetValues(typeof(MeasureUnit)).Cast<MeasureUnit>())
+                {
+                    var possibleStrings = this._measureUnitDetector.MeasureUnitsInString[enumValue];
+                    foreach (var possibleString in possibleStrings)
+                    {
+                        if (ingredientStringWithoutQuantity.StartsWith($"{possibleString} ")) 
+                        {
+                            measureUnit = enumValue;
+                            break;
+                        }
+                    }
+
+                    if (measureUnit != MeasureUnit.Unit)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Match ingredientMatch;
+            switch (measureUnit)
+            {
+                case MeasureUnit.Unit: 
+                    ingredientMatch = hasQuantity
+                        ? this._ingredientUnitExpression.Match(ingredientString)
+                        : this._ingredientFullExpression.Match(ingredientString);
+                    break;
+                default:
+                    ingredientMatch = this._ingredientExpression.Match(ingredientString);
+                    break; 
+            }
+
+            var ingredientPhrase = ingredientMatch.Value.Trim();
+            string name = ingredientPhrase;
+            string requirements = null;
+
+            // If there is a comma, it's because there is a requirement next to the ingredient.
+            var firstCommaIndex = ingredientPhrase.IndexOf(",");
+            if (firstCommaIndex > -1)
+            {
+                name = ingredientPhrase.Substring(0, firstCommaIndex);
+                requirements = ingredientPhrase.Substring(firstCommaIndex + 2, ingredientPhrase.Length - firstCommaIndex - 2);
+            }
+
+            return new Ingredient
+            {
+                Name = name,
+                Quantity = new Quantity { Value = quantity, Abbreviation = measureUnit },
+                Requirements = requirements
+            };
+        }
+
         internal ParseTimerPartResult TryParseTimerPart(IList<string> phrase, int index)
         {
-            int time;
+            double time;
             var word = phrase[index].Trim();
-            if (this._generalLanguageHelper.IsNumber(word, out time))
+            if (this._generalLanguageHelper.TryParseNumber(word, out time))
             {
                 var skippedIndexes = new List<int> { index };
                 var durationBuilder = new StringBuilder().AppendFormat("PT{0}", time);
@@ -313,7 +377,7 @@ namespace E133.Parser
 
                     // If we find another number, we add it in the duration only if it's not a range duration ("1 to 2 minutes")
                     // We do this because if it's a range duration, we want to keep only the first number for the final duration format
-                    if (this._generalLanguageHelper.IsNumber(word, out time))
+                    if (this._generalLanguageHelper.TryParseNumber(word, out time))
                     {
                         if (!rangeDuration)
                         {
@@ -336,7 +400,7 @@ namespace E133.Parser
                         // This may happen in cases like "1 hour 30 to 2 hours", where the second 'hours' will try to stack
                         // If last character is a letter, do not stack other formats. 
                         // This may happen in cases like "1 hour 30 minutes to 2 hours", where the second 'hours' will try to stack after 'minutes'  
-                        if (this._generalLanguageHelper.IsNumber(durationString.Last().ToString(), out time) && !durationString.Contains(qualifier))
+                        if (this._generalLanguageHelper.TryParseNumber(durationString.Last().ToString(), out time) && !durationString.Contains(qualifier))
                         {
                             durationBuilder.Append(qualifier);
                         }
@@ -356,9 +420,9 @@ namespace E133.Parser
                     var durationString = durationBuilder.ToString();
                     // If this is a time notation, and the last character is an integer, it means we found something like "1 hour 30"
                     // We then have to find the last unit to append the lesser unit
-                    if (this._generalLanguageHelper.IsNumber(durationString.Last().ToString(), out time))
+                    if (this._generalLanguageHelper.TryParseNumber(durationString.Last().ToString(), out time))
                     {
-                        var lastChar = durationString.Last(x => !this._generalLanguageHelper.IsNumber(x.ToString(), out time));
+                        var lastChar = durationString.Last(x => !this._generalLanguageHelper.TryParseNumber(x.ToString(), out time));
                         switch (lastChar)
                         {
                             case 'H': 
@@ -528,92 +592,30 @@ namespace E133.Parser
             }
         }
 
-        private void ParseIngredients(
-            IEnumerable<HtmlNode> ingredientNodes,
-            QuickRecipe recipe,
-            int subrecipeId,
-            ref int ingredientId,
-            ref int stepId)
+        private void CreateIngredientsFromNodes(IEnumerable<HtmlNode> ingredientNodes, QuickRecipe recipe, int currentSubrecipeId, ref int currentIngredientId, ref int currentStepId)
         {
-            foreach (var ingredientNode in ingredientNodes)
+            var ingredientStrings = ingredientNodes.Select(x => x.InnerText.Trim()).ToList();
+            foreach (var ingredientString in ingredientStrings)
             {
-                var name = ingredientNode.InnerText.Trim();
+                var ingredient = this.ParseIngredientFromString(ingredientString);
+                ingredient.Id = currentIngredientId++;
+                ingredient.SubrecipeId = currentSubrecipeId;
 
-                var matches = this._quantityExpression.Matches(name);
-
-                var readQuantity = matches[0].Value;
-                switch (readQuantity)
+                if (!string.IsNullOrEmpty(ingredient.Requirements))
                 {
-                    case "½":
-                        readQuantity = 0.5.ToString(this._recipeCulture);
-                        break;
-                    case "¼":
-                        readQuantity = 0.25.ToString(this._recipeCulture);
-                        break;
-                    case "¾":
-                        readQuantity = 0.75.ToString(this._recipeCulture);
-                        break;
-                }
-
-                double quantity;
-                var hasQuantity = double.TryParse(readQuantity, NumberStyles.Any, this._recipeCulture, out quantity);
-                if (!hasQuantity)
-                {
-                    quantity = 1;
-                }
-
-                var readMeasureUnit = matches.Count > 1 ? matches[1].Value : string.Empty;
-                var measureUnitEnum = this._measureUnitDetector.GetMeasureUnit(readMeasureUnit);
-
-                Match ingredientMatch;
-                if (measureUnitEnum == MeasureUnit.Unit)
-                {
-                    ingredientMatch = hasQuantity
-                        ? this._ingredientUnitExpression.Match(name)
-                        : this._ingredientFullExpression.Match(name);
-                }
-                else
-                {
-                    ingredientMatch = this._ingredientExpression.Match(name);
-                }
-
-                var ingredient = new Ingredient
-                {
-                    Id = ingredientId,
-                    Quantity = new Quantity { Value = quantity, Abbreviation = measureUnitEnum },
-                    SubrecipeId = subrecipeId
-                };
-
-                var ingredientPhrase = ingredientMatch.Value.Trim();
-                var firstCommaIndex = ingredientPhrase.IndexOf(",");
-                if (firstCommaIndex > -1)
-                {
-                    var requirements = ingredientPhrase.Substring(firstCommaIndex + 2, ingredientPhrase.Length - firstCommaIndex - 2);
-
-                    ingredient.Name = ingredientPhrase.Substring(0, firstCommaIndex);
-                    ingredient.Requirements = requirements;
-
-                    var requirementAction = this._actionDetector.Actionify(requirements);
+                    var requirementAction = this._actionDetector.Actionify(ingredient.Requirements);
 
                     var step = new Step();
-                    step.Id = stepId++;
+                    step.Id = currentStepId++;
                     step.SubrecipeId = RequirementsSubrecipeId;
-                    step.Parts.Add(new TextPart { Value = string.Format("{0}: ", recipe.Subrecipes.Single(x => x.Id == subrecipeId).Title) });
+                    step.Parts.Add(new TextPart { Value = string.Format("{0}: ", recipe.Subrecipes.Single(x => x.Id == currentSubrecipeId).Title) });
                     step.Parts.Add(new ActionPart { Value = requirementAction });
                     step.Parts.Add(new IngredientPart { Ingredient = ingredient });
 
                     recipe.Steps.Add(step);
                 }
-                else
-                {
-                    ingredient.Name = ingredientPhrase;
-                }
-
-                Console.WriteLine("Found ingredient: " + ingredient.Name);
-
+                
                 recipe.Ingredients.Add(ingredient);
-
-                ingredientId++;
             }
         }
 

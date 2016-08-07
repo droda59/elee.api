@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace E133.Parser.Tests
+namespace E133.Parser
 {
     public static class StringExtensions
     {
