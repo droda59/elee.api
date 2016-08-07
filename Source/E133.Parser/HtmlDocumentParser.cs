@@ -23,6 +23,7 @@ namespace E133.Parser
 
         private readonly IHtmlLoader _htmlLoader;
         private readonly Regex _quantityExpression;
+        private readonly Regex _quantityRangeExpression;
         private readonly Regex _ingredientExpression;
         private readonly Regex _ingredientFullExpression;
         private readonly Regex _ingredientUnitExpression;
@@ -65,6 +66,7 @@ namespace E133.Parser
             
             // TODO Localize and put somewhere else
             this._quantityExpression = new Regex(@"[\xbc-\xbe\w]+[\xbc-\xbe\w'’,./]*", RegexOptions.Compiled);
+            this._quantityRangeExpression = new Regex(@"((ou|à) [\xbc-\xbe0-9]+[\xbc-\xbe0-9'’,./]* )", RegexOptions.Compiled);
             this._ingredientExpression = new Regex(@"(?<=[a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%] de | d'| d’)([a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%]+)(, [,\w\s]+)*", RegexOptions.Compiled);
             this._ingredientFullExpression = new Regex(@"([a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%]+)(, [,\w\s]+)*", RegexOptions.Compiled);
             this._ingredientUnitExpression = new Regex(@"(?<=[a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%])([a-zA-Z0-9\u00C0-\u017F\s()'’\-\/%]+)(, [,\w\s]+)*", RegexOptions.Compiled);
@@ -297,7 +299,9 @@ namespace E133.Parser
         {
             double quantity;
             var ingredientString = originalString.Replace("\t", " ");
-            var matches = this._quantityExpression.Matches(ingredientString.Replace("\t", " "));
+            ingredientString = this._quantityRangeExpression.Replace(ingredientString, string.Empty, 1);
+
+            var matches = this._quantityExpression.Matches(ingredientString);
             var quantityString = matches[0].Value;
             var hasQuantity = this._generalLanguageHelper.TryParseNumber(quantityString, this._recipeCulture, out quantity);
 

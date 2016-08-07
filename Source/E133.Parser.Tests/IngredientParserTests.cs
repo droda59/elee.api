@@ -81,6 +81,17 @@ namespace E133.Parser.Tests
         }
 
         [Theory]
+        [InlineData("2 à 3 oignons", "oignons", 2)]
+        [InlineData("2 ou 3 oignons", "oignons", 2)]
+        public void ParseIngredientFromString_Range_ReturnsResult(string ingredientString, string name, double quantity) 
+        {
+            var result = this._parser.ParseIngredientFromString(ingredientString);
+
+            Assert.Equal(name, result.Name);
+            Assert.Equal(quantity, result.Quantity.Value);
+        }
+
+        [Theory]
         [InlineData("1,3 kg (3 lb) de rôti de palette de veau avec os", "rôti de palette de veau avec os", 1.3, MeasureUnit.Kilogram)]
         [InlineData("675 g (1 1/2 lb) de boeuf haché maigre", "boeuf haché maigre", 675, MeasureUnit.Gram)]
         [InlineData("60 ml (1/4 tasse) d’huile d’olive", "huile d’olive", 60, MeasureUnit.Millilitre)]
