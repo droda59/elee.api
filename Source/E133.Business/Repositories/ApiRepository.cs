@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -82,7 +83,7 @@ namespace E133.Business.Repositories
                     var content = await data.Content.ReadAsStringAsync();
                     
                     recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
-                        .Where(x => x.Title.Contains(query))
+                        .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                         .ToList();
                 }
             }
