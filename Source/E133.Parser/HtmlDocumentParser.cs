@@ -184,9 +184,8 @@ namespace E133.Parser
 
                             var word = words[index];
                             var previouslyReadType = currentlyReadType;
-                            var phrase = words.Cast<Match>().Select(m => m.Value).ToArray();
 
-                            var enumerationPartResult = this.TryParseEnumerationPart(phrase, index, recipe.Ingredients, subrecipeId);
+                            var enumerationPartResult = this.TryParseEnumerationPart(words, index, recipe.Ingredients, subrecipeId);
                             if(enumerationPartResult.IsEnumerationPart)
                             {
                                 currentlyReadType = typeof(IngredientEnumerationPart);
@@ -195,7 +194,7 @@ namespace E133.Parser
                             }
                             else
                             {
-                                var ingredientPartResult = this.TryParseIngredientPart(phrase, index, recipe.Ingredients, subrecipeId);
+                                var ingredientPartResult = this.TryParseIngredientPart(words, index, recipe.Ingredients, subrecipeId);
                                 if (ingredientPartResult.IsIngredientPart)
                                 {
                                     currentlyReadType = typeof(IngredientPart);
@@ -204,7 +203,7 @@ namespace E133.Parser
                                 }
                                 else
                                 {
-                                    var timerPartResult = this.TryParseTimerPart(phrase, index);
+                                    var timerPartResult = this.TryParseTimerPart(words, index);
                                     if (timerPartResult.IsTimerPart)
                                     {
                                         currentlyReadType = typeof(TimerPart);
@@ -300,6 +299,8 @@ namespace E133.Parser
             double quantity;
             var ingredientString = originalString.Replace("\t", " ");
             ingredientString = this._quantityRangeExpression.Replace(ingredientString, string.Empty, 1);
+
+            Console.WriteLine("Ingredient: " + ingredientString);
 
             var matches = this._quantityExpression.Matches(ingredientString);
             var quantityString = matches[0].Value;
