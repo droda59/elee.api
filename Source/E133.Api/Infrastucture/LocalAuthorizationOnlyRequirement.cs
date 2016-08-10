@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 
+using System.Threading.Tasks;
+
 namespace E133.Api.Infrastructure
 {
     public class LocalAuthorizationOnlyRequirement : AuthorizationHandler<LocalAuthorizationOnlyRequirement>, IAuthorizationRequirement
     {
-        protected override void Handle(AuthorizationContext context, LocalAuthorizationOnlyRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, LocalAuthorizationOnlyRequirement requirement)
         {
             var mvcContext = context.Resource as Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext;
             if (mvcContext != null)
@@ -18,6 +20,8 @@ namespace E133.Api.Infrastructure
                     context.Fail();
                 }
             }
+
+            return Task.FromResult(0);
         }
     }
 }

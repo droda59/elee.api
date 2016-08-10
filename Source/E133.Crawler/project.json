@@ -7,9 +7,9 @@
   "dependencies": {
     "Microsoft.NETCore.App": {
       "type": "platform",
-      "version": "1.0.0-rc2-3002702"
+      "version": "1.0.0"
     },
-    "Autofac": "4.0.0-rc3-286",
+    "Autofac": "4.0.0",
     "E133.Business": "1.0.0.*",
     "E133.Parser": "1.0.0.*"
   },
