@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 using Autofac;
 
@@ -27,12 +28,20 @@ namespace E133.Crawler
             
             // var repo = container.Resolve<IQuickRecipeRepository>();
             var knownCrawlers = container.Resolve<IEnumerable<IHtmlCrawler>>();
+            var recipeCount = 0;
+
+
+            var sw = Stopwatch.StartNew();
 
             foreach (var crawler in knownCrawlers)
             {
                 // TODO Start these assholes asynchronously
+                var sw1 = Stopwatch.StartNew();
                 var allSiteLinks = await crawler.GetAllSiteLinks();
+                Console.WriteLine("Took " + sw1.Elapsed.ToString("c") + " to get all links.");
+                sw1.Stop();
 
+                var sw2 = Stopwatch.StartNew();
                 foreach (var link in allSiteLinks) 
                 {
                 //     var isRecipe = parser.IsRecipePage(link);
@@ -44,7 +53,12 @@ namespace E133.Crawler
                             Uri result = null;
                             if (Uri.TryCreate(crawler.Base.Domain, link, out result))
                             {
-                                Console.WriteLine("Parsing of " + result.AbsoluteUri + " was successful. Adding to repo.");
+                                // Console.WriteLine("Parsing of " + result.AbsoluteUri + " was successful.");
+                                if (await crawler.IsRecipeLink(result))
+                                {
+                                    Console.WriteLine("Found a recipe! " + result.AbsoluteUri);
+                                    recipeCount++;
+                                }
                             }
 
                 //             var success = await repo.InsertAsync(recipe);
@@ -59,7 +73,14 @@ namespace E133.Crawler
                 //         }
                 //     }
                 }
+                Console.WriteLine("Took " + sw2.Elapsed.ToString("c") + " to check recipe links.");
+                sw2.Stop();
             }
+
+            sw.Stop();
+
+            Console.WriteLine("All in all, found " + recipeCount + " recipes.");
+            Console.WriteLine("Took " + sw.Elapsed.ToString("c") + ".");
 
             Console.ReadLine();
         }

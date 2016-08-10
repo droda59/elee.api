@@ -9,7 +9,7 @@ namespace E133.Parser.LanguageUtilities.English
             throw new NotImplementedException();
         }
 
-        public string Timerify(int time, string word)
+        public string GetTimeQualifier(string word)
         {
             throw new NotImplementedException();
         }

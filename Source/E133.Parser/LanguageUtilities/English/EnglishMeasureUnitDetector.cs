@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+
 using E133.Business;
 
 namespace E133.Parser.LanguageUtilities.English
@@ -37,6 +40,14 @@ namespace E133.Parser.LanguageUtilities.English
                 case "pinch": return MeasureUnit.Pinch;
 
                 default: return MeasureUnit.Unit;
+            }
+        }
+
+        public ILookup<MeasureUnit, string> MeasureUnitsInString
+        {
+            get 
+            {
+                throw new NotImplementedException();
             }
         }
     }

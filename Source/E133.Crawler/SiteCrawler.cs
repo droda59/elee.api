@@ -10,7 +10,7 @@ using HtmlAgilityPack;
 
 namespace E133.Crawler
 {
-    internal abstract class SiteCrawler<TBase> : IHtmlCrawler
+    internal abstract class SiteCrawler<TBase> : IHtmlCrawler, IDisposable
         where TBase : IBase, new()
     {
         private readonly IHtmlLoader _htmlLoader;
@@ -18,6 +18,7 @@ namespace E133.Crawler
         protected SiteCrawler(IHtmlLoader htmlLoader)
         {
             this._htmlLoader = htmlLoader;
+            this._htmlLoader.Initialize();
             this.Base = new TBase();
         }
 
@@ -51,6 +52,34 @@ namespace E133.Crawler
         // Parse la recette
         // Ajoute la recette dans la BD
 
+        public void Dispose()
+        {
+            this._htmlLoader.Dispose();
+        }
+
+        public async Task<bool> IsRecipeLink(Uri uri)
+        {
+            bool isRecipe = false;
+            try
+            {
+                var content = await this._htmlLoader.ReadHtmlAsync(uri);
+                if (!string.IsNullOrEmpty(content))
+                {
+                    var document = new HtmlDocument();
+                    document.LoadHtml(System.Net.WebUtility.HtmlDecode(content));
+                    
+                    isRecipe = document.DocumentNode
+                        .SelectSingleNode(".//div[@id='block-system-main']")
+                        .SelectSingleNode(".//div[@class='recipe-content']") != null;
+                }
+            }
+            catch (System.Exception)
+            {
+            }
+
+            return isRecipe;
+        }
+
         public async Task<IEnumerable<string>> GetAllSiteLinks()
         {
             var discoveredLinks = new HashSet<string>();
@@ -63,10 +92,6 @@ namespace E133.Crawler
             {
                 try
                 {
-                    if (link.AbsoluteUri.Contains("concours"))
-                    {
-                        var b = true;
-                    }
                     await this.GetPageLinks(link, discoveredLinks, unprocessedLinks);
                 }
                 catch (Exception) 
@@ -74,7 +99,7 @@ namespace E133.Crawler
                 }
                 finally 
                 {
-                    // TODO Log this asshole
+                    // TODO Log bitch
                     unprocessedLinks.Remove(link);
                 }
             } while ((link = unprocessedLinks.FirstOrDefault()) != null);

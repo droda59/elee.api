@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "Microsoft.NETCore.App": {
-      "version": "1.0.0-rc2-3002702",
+      "version": "1.0.0-rc2-*",
       "type": "platform"
     },
     "Microsoft.AspNetCore.Mvc": "1.0.0-rc2-final",
@@ -13,9 +13,9 @@
     "Microsoft.Extensions.Logging": "1.0.0-rc2-final",
     "Microsoft.Extensions.Logging.Console": "1.0.0-rc2-final",
     "Microsoft.Extensions.Logging.Debug": "1.0.0-rc2-final",
-    "Autofac": "4.0.0-rc2-240",
-    "Autofac.Extensions.DependencyInjection": "4.0.0-rc2-240",
-    "Autofac.Framework.DependencyInjection": "4.0.0-beta8-157",
+    "Autofac": "4.0.0-rc3-*",
+    "Autofac.Extensions.DependencyInjection": "4.0.0-rc2-*",
+    "Autofac.Framework.DependencyInjection": "4.0.0-beta8-*",
     "Autofac.Dnx": "4.0.0-alpha2",
     "Newtonsoft.Json": "9.0.1-beta1",
     "E133.Business": "1.0.0-*",

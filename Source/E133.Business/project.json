@@ -2,8 +2,8 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "NETStandard.Library": "1.5.0-rc2-24027",
-    "Autofac": "4.0.0-rc2-240",
+    "NETStandard.Library": "1.5.0-rc2-*",
+    "Autofac": "4.0.0-rc3-*",
     "Newtonsoft.Json": "9.0.1-beta1"
   },
 

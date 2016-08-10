@@ -4,6 +4,6 @@
     {
         bool IsTimeQualifier(string part);
 
-        string Timerify(int time, string word);
+        string GetTimeQualifier(string word);
     }
 }

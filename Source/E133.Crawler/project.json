@@ -9,7 +9,7 @@
       "type": "platform",
       "version": "1.0.0-rc2-3002702"
     },
-    "Autofac": "4.0.0-rc2-240",
+    "Autofac": "4.0.0-rc3-286",
     "E133.Business": "1.0.0.*",
     "E133.Parser": "1.0.0.*"
   },
