@@ -313,16 +313,7 @@ namespace E133.Parser
                 foreach (var enumValue in Enum.GetValues(typeof(MeasureUnit)).Cast<MeasureUnit>())
                 {
                     var possibleStrings = this._measureUnitDetector.MeasureUnitsInString[enumValue];
-                    foreach (var possibleString in possibleStrings)
-                    {
-                        if (ingredientStringWithoutQuantity.StartsWith($"{possibleString} ")) 
-                        {
-                            measureUnit = enumValue;
-                            break;
-                        }
-                    }
-
-                    if (measureUnit != MeasureUnit.Unit) 
+                    if (possibleStrings.Any(x => ingredientStringWithoutQuantity.StartsWith($"{x} "))) 
                     {
                         measureUnit = enumValue;
                         break;
