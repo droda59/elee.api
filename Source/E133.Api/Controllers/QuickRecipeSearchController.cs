@@ -28,21 +28,21 @@ namespace E133.Api.Controllers
             return results;
         }
 
-        // [HttpGet]
-        // [Route("api/quickrecipe/advancedsearch")]
-        // public async Task<IEnumerable<QuickRecipeSearchResult>> AdvancedSearch(
-        //     IEnumerable<string> includedIngredients, 
-        //     IEnumerable<string> excludedIngredients, 
-        //     IEnumerable<string> categories,
-        //     string query)
-        // {
-        //     var results = await this._repo.SearchAsync(query);
+        [HttpGet]
+        [Route("api/quickrecipe/advancedsearch")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> AdvancedSearch(
+            IEnumerable<string> includedIngredients, 
+            IEnumerable<string> excludedIngredients, 
+            IEnumerable<string> categories,
+            string query)
+        {
+            var results = await this._repo.SearchAsync(query);
 
-        //     return results
-        //         .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
-        //         .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
-        //         .Select(x => CreateSearchResult(x));
-        // }
+            return results
+                .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
+                .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
+                .Select(x => CreateSearchResult(x));
+        }
 
         private QuickRecipeSearchResult CreateSearchResult(QuickRecipe quickRecipe)
         {
