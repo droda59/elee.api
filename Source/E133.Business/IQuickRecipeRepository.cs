@@ -13,6 +13,6 @@ namespace E133.Business
 
         Task<bool> InsertAsync(QuickRecipe recipe);
 
-        Task<IEnumerable<QuickRecipe>> SearchAsync(string query);
+        Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query);
     }
 }
