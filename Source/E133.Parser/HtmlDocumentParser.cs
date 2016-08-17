@@ -95,8 +95,8 @@ namespace E133.Parser
             recipe.SmallImageUrl = this.GetSmallImageUrl(document);
             Console.WriteLine("Found small image: " + recipe.SmallImageUrl);
             
-            recipe.NormalmageUrl = this.GetNormalImageUrl(document);
-            Console.WriteLine("Found normal image: " + recipe.NormalmageUrl);
+            recipe.NormalImageUrl = this.GetNormalImageUrl(document);
+            Console.WriteLine("Found normal image: " + recipe.NormalImageUrl);
             
             recipe.LargeImageUrl = this.GetLargeImageUrl(document);
             Console.WriteLine("Found large image: " + recipe.LargeImageUrl);
