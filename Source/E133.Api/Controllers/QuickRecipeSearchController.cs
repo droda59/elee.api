@@ -25,7 +25,7 @@ namespace E133.Api.Controllers
         {
             var results = await this._repo.SearchAsync(query);
 
-            return results.Select(x => CreateSearchResult(x));
+            return results;
         }
 
         [HttpGet]
