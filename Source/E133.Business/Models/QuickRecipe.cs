@@ -23,7 +23,7 @@ namespace E133.Business.Models
         
         public string SmallImageUrl { get; set; }
         
-        public string NormalmageUrl { get; set; }
+        public string NormalImageUrl { get; set; }
         
         public string LargeImageUrl { get; set; }
 		
