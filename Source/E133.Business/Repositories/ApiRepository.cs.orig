@@ -82,9 +82,13 @@ namespace E133.Business.Repositories
                 {
                     var content = await data.Content.ReadAsStringAsync();
                     
+<<<<<<< HEAD
+                    recipes = JsonConvert.DeserializeObject<List<QuickRecipe>>(content);
+=======
                     recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
                         .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
                         .ToList();
+>>>>>>> develop
                 }
             }
             

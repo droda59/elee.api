@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -46,8 +46,12 @@ namespace E133.Business.Repositories
 
         public Task<IEnumerable<QuickRecipe>> SearchAsync(string query)
         {
+<<<<<<< HEAD
+            var task = Task.Run(() => _knownRecipes.Values.Where(x => x.Title.Contains(query)));
+=======
             var task = Task.Run(() =>
-                _knownRecipes.Values.Where(x => x.Title.Contains(query)).Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl }));
+                _knownRecipes.Values.Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl }));
+>>>>>>> develop
             task.Wait();
 
             return task;
