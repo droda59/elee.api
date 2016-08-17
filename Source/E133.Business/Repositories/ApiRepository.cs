@@ -70,9 +70,9 @@ namespace E133.Business.Repositories
             return result;
         }
 
-        public async Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query)
+        public async Task<IEnumerable<QuickRecipe>> SearchAsync(string query)
         {
-            var recipes = new List<QuickRecipeSearchResult>();
+            var recipes = new List<QuickRecipe>();
 
             var url = "https://api.mlab.com/api/1/databases/e133/collections/quickrecipe?apiKey=tEW3mV3EqhPQo-IVY2je7cL5Zo0ztYQy";
             using (var client = new HttpClient())

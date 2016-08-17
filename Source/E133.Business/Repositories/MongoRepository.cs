@@ -34,7 +34,7 @@ namespace E133.Business.Repositories
             return Task.FromResult(false);
         }
 
-        public Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query)
+        public Task<IEnumerable<QuickRecipe>> SearchAsync(string query)
         {
             // await this.Collection.Indexes.CreateOneAsync(Builders<QuickRecipe>.IndexKeys.Text(x => x.Title));
 
@@ -50,7 +50,7 @@ namespace E133.Business.Repositories
             //     }
             // }
 
-            return Task.FromResult(Enumerable.Empty<QuickRecipeSearchResult>());
+            return Task.FromResult(Enumerable.Empty<QuickRecipe>());
         }
     }
 }
