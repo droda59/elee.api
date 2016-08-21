@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,7 +24,7 @@ namespace E133.Api.Controllers
         {
             var results = await this._repo.SearchAsync(query);
 
-            return results.Select(x => CreateSearchResult(x));
+            return results.ToList();
         }
 
         [HttpGet]
@@ -41,17 +40,7 @@ namespace E133.Api.Controllers
             return results
                 .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
                 .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
-                .Select(x => CreateSearchResult(x));
-        }
-
-        private QuickRecipeSearchResult CreateSearchResult(QuickRecipe quickRecipe)
-        {
-            return new QuickRecipeSearchResult 
-            { 
-                Id = quickRecipe.Id, 
-                Title = quickRecipe.Title, 
-                SmallImageUrl = quickRecipe.SmallImageUrl 
-            };
+                .ToList();
         }
     }
 }

@@ -70,9 +70,9 @@ namespace E133.Business.Repositories
             return result;
         }
 
-        public async Task<IEnumerable<QuickRecipe>> SearchAsync(string query)
+        public async Task<IEnumerable<QuickRecipeSearchResult>> SearchAsync(string query)
         {
-            var recipes = new List<QuickRecipe>();
+            var recipes = new List<QuickRecipeSearchResult>();
 
             var url = "https://api.mlab.com/api/1/databases/e133/collections/quickrecipe?apiKey=tEW3mV3EqhPQo-IVY2je7cL5Zo0ztYQy";
             using (var client = new HttpClient())
@@ -84,6 +84,7 @@ namespace E133.Business.Repositories
                     
                     recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
                         .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+                        .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients })
                         .ToList();
                 }
             }
