@@ -84,7 +84,15 @@ namespace E133.Business.Repositories
                     
                     recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
                         .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                        .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients })
+                        .Select(x => 
+                            new QuickRecipeSearchResult 
+                            { 
+                                Id = x.Id, 
+                                Title = x.Title, 
+                                Durations = x.Durations, 
+                                SmallImageUrl = x.SmallImageUrl, 
+                                Ingredients = x.Ingredients 
+                            })
                         .ToList();
                 }
             }
