@@ -300,8 +300,6 @@ namespace E133.Parser
             var ingredientString = originalString.Replace("\t", " ");
             ingredientString = this._quantityRangeExpression.Replace(ingredientString, string.Empty, 1);
 
-            Console.WriteLine("Ingredient: " + ingredientString);
-
             var matches = this._quantityExpression.Matches(ingredientString);
             var quantityString = matches[0].Value;
             var hasQuantity = this._generalLanguageHelper.TryParseNumber(quantityString, this._recipeCulture, out quantity);

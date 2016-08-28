@@ -49,6 +49,7 @@ namespace E133.Business.Repositories
             var task = Task.Run(() =>
                 _knownRecipes.Values
                     .Where(x => x.Title.Contains(query))
+                    .Where(x => x.WasReviewed)
                     .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients }));
             task.Wait();
 
