@@ -20,6 +20,7 @@
     "Autofac.Dnx": "4.0.0-*",
     "Newtonsoft.Json": "9.0.1",
     "E133.Business": "1.0.0-*",
+    "E133.Database": "1.0.0-*",
     "E133.Parser": "1.0.0-*"
   },
 

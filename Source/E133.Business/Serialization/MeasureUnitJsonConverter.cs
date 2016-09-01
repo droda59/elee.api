@@ -13,7 +13,34 @@ namespace E133.Business.Serialization
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return existingValue;
+            var enumString = (string)reader.Value;
+            MeasureUnit enumValue;
+
+            if (Enum.TryParse<MeasureUnit>(enumString, out enumValue))
+            {
+                return enumValue;
+            }
+            else 
+            {
+                switch (enumString)
+                {
+                    case "ml": return MeasureUnit.Millilitre;
+                    case "cl": return MeasureUnit.Centilitre;
+                    case "dl": return MeasureUnit.Decilitre;
+                    case "l": return MeasureUnit.Litre;
+                    case "tsp": return MeasureUnit.Teaspoon;
+                    case "tbsp": return MeasureUnit.Tablespoon;
+                    case "oz": return MeasureUnit.Ounce;
+                    case "cup": return MeasureUnit.Cup;
+                    case "unit": return MeasureUnit.Unit;
+                    case "pinch": return MeasureUnit.Pinch;
+                    case "g": return MeasureUnit.Gram;
+                    case "kg": return MeasureUnit.Kilogram;
+                    case "lb": return MeasureUnit.Pound;
+                    default: 
+                        return null;
+                }
+            }
         }
 
         public override bool CanConvert(Type objectType)

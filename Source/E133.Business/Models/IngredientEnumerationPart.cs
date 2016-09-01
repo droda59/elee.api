@@ -12,6 +12,7 @@ namespace E133.Business.Models
         public override string Type
         {
             get { return "enumeration"; }
+            set {}
         }
 
         public IList<Ingredient> Ingredients { get; set; }

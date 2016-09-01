@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
+using Newtonsoft.Json;
+
 namespace E133.Business.Models
 {
     [DebuggerDisplay("{DebuggerDisplay}")]
@@ -12,7 +14,8 @@ namespace E133.Business.Models
             this.Parts = new List<Part>();
         }
 
-        public int Id { get; set; }
+        [JsonProperty("id")]
+        public int StepId { get; set; }
 
         public int SubrecipeId { get; set; }
 

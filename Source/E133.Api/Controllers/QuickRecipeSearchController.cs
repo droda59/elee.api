@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Xml;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -33,13 +35,25 @@ namespace E133.Api.Controllers
             IEnumerable<string> includedIngredients, 
             IEnumerable<string> excludedIngredients, 
             IEnumerable<string> categories,
+            string maximumTime,
             string query)
         {
             var results = await this._repo.SearchAsync(query);
+            var maximumTimeIsoNotation = (TimeSpan?)null;
+
+            try 
+            {
+                maximumTimeIsoNotation = XmlConvert.ToTimeSpan(maximumTime);
+            }
+            catch (FormatException)
+            {
+                maximumTimeIsoNotation = TimeSpan.MaxValue;
+            }
 
             return results
-                .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
-                .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
+                // .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
+                // .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
+                .Where(x => new TimeSpan(x.Durations.Sum(y => XmlConvert.ToTimeSpan(y.Time).Ticks)) <= maximumTimeIsoNotation.Value)
                 .ToList();
         }
     }

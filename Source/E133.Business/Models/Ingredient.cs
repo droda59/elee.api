@@ -1,8 +1,11 @@
+using Newtonsoft.Json;
+
 namespace E133.Business.Models
 {
     public class Ingredient 
     {
-        public long Id { get; set; }
+        [JsonProperty("id")]
+        public long IngredientId { get; set; }
 		
         public int SubrecipeId { get; set; }
 		

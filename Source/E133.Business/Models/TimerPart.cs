@@ -5,6 +5,7 @@ namespace E133.Business.Models
         public override string Type
         {
             get { return "timer"; }
+            set {}
         }
 
         public string Value { get; set; }

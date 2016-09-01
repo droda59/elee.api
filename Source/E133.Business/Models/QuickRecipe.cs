@@ -13,6 +13,10 @@ namespace E133.Business.Models
             this.Steps = new List<Step>();
         }
 
+        public bool WasReviewed { get; set; }
+
+        public bool MarkedForReview { get; set; }
+
 		public string Title { get; set; }
 
         public string OriginalUrl { get; set; }

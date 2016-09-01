@@ -2,13 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
+using E133.Business;
 using E133.Business.Models;
 
 using Newtonsoft.Json;
 
-namespace E133.Business.Repositories
+namespace E133.Database.Repositories
 {
     public class ApiRepository : IQuickRecipeRepository
     {
@@ -37,7 +39,7 @@ namespace E133.Business.Repositories
             using (var client = new HttpClient())
             {
                 var stringContent = JsonConvert.SerializeObject(recipe);
-                using (var content = new StringContent(stringContent))
+                using (var content = new StringContent(stringContent, Encoding.UTF8, "application/json"))
                 {
                     var data = await client.PostAsync(url, content);
                     if (data.IsSuccessStatusCode)
@@ -57,7 +59,8 @@ namespace E133.Business.Repositories
             using (var client = new HttpClient())
             {
                 var stringContent = JsonConvert.SerializeObject(recipe);
-                using (var content = new StringContent(stringContent))
+                
+                using (var content = new StringContent(stringContent, Encoding.UTF8, "application/json"))
                 {
                     var data = await client.PutAsync(url, content);
                     if (data.IsSuccessStatusCode)
@@ -82,9 +85,18 @@ namespace E133.Business.Repositories
                 {
                     var content = await data.Content.ReadAsStringAsync();
                     
-                    recipes = JsonConvert.DeserializeObject<List<QuickRecipeSearchResult>>(content)
+                    recipes = JsonConvert.DeserializeObject<List<QuickRecipe>>(content)
                         .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                        .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients })
+                        .Where(x => x.WasReviewed)
+                        .Select(x => 
+                            new QuickRecipeSearchResult 
+                            { 
+                                Id = x.Id, 
+                                Title = x.Title, 
+                                Durations = x.Durations, 
+                                SmallImageUrl = x.SmallImageUrl, 
+                                Ingredients = x.Ingredients 
+                            })
                         .ToList();
                 }
             }
