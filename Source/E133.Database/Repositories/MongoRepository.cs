@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using E133.Business;
 using E133.Business.Models;
-using E133.Database;
 
 using MongoDB.Driver;
 
@@ -34,31 +34,25 @@ namespace E133.Database.Repositories
         {
             await this.Collection.Indexes.CreateOneAsync(Builders<QuickRecipe>.IndexKeys.Text(x => x.Title));
 
-            // TODO Add WasReviewd filter
-            var results = new List<QuickRecipeSearchResult>();
-            using (var cursor = await this.Collection.FindAsync(Builders<QuickRecipe>.Filter.Text(query)))
+            var builder = Builders<QuickRecipe>.Filter;
+            var filter = builder.Eq(x => x.WasReviewed, true);
+            if (!string.IsNullOrWhiteSpace(query))
             {
-                while (await cursor.MoveNextAsync())
-                {
-                    foreach (var document in cursor.Current)
-                    {
-                        if (document.WasReviewed)
-                        {
-                            results.Add(
-                                new QuickRecipeSearchResult 
-                                { 
-                                    Id = document.Id, 
-                                    Title = document.Title, 
-                                    Durations = document.Durations, 
-                                    SmallImageUrl = document.SmallImageUrl, 
-                                    Ingredients = document.Ingredients 
-                                });
-                        }
-                    }
-                }
+                filter &= builder.Text(query);
             }
 
-            return results;
+            var results = await this.Collection.Find(filter).ToListAsync();
+            return results
+                .Select(document => 
+                    new QuickRecipeSearchResult 
+                    { 
+                        Id = document.Id, 
+                        Title = document.Title, 
+                        Durations = document.Durations, 
+                        SmallImageUrl = document.SmallImageUrl, 
+                        Ingredients = document.Ingredients 
+                    })
+                .ToList();
         }
     }
 }

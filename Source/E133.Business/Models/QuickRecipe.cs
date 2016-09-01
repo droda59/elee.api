@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 
+using Newtonsoft.Json;
+
 namespace E133.Business.Models
 {
     public class QuickRecipe : Document
@@ -13,8 +15,10 @@ namespace E133.Business.Models
             this.Steps = new List<Step>();
         }
 
+        [JsonIgnore]
         public bool WasReviewed { get; set; }
 
+        [JsonIgnore]
         public bool MarkedForReview { get; set; }
 
 		public string Title { get; set; }
