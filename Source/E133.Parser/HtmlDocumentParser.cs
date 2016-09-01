@@ -117,7 +117,7 @@ namespace E133.Parser
             }
 
             recipe.Subrecipes = this._subrecipeRepository.KnownSubrecipes
-                .Select(x => new Subrecipe { Id = x.Key, Title = x.Value })
+                .Select(x => new Subrecipe { SubrecipeId = x.Key, Title = x.Value })
                 .ToList();
 
             var ingredientId = 0;
@@ -134,7 +134,7 @@ namespace E133.Parser
                     recipe.Subrecipes.Add(
                         new Subrecipe
                         {
-                            Id = subrecipeIndex,
+                            SubrecipeId = subrecipeIndex,
                             Title = title
                         });
 
@@ -157,7 +157,7 @@ namespace E133.Parser
             {
                 // TODO Maybe we should order steps, in case a step subrecipe doesn't have the same text as the ingredient subrecipes
                 var subrecipe = recipe.Subrecipes.SingleOrDefault(x => x.Title == stepSubrecipeNode.InnerText.Trim());
-                var subrecipeId = subrecipe != null ? subrecipe.Id : PreparationSubrecipeId;
+                var subrecipeId = subrecipe != null ? subrecipe.SubrecipeId : PreparationSubrecipeId;
 
                 var stepNodes = this.GetSubrecipeSteps(stepSubrecipeNode);
                 foreach (var stepNode in stepNodes)
@@ -167,7 +167,7 @@ namespace E133.Parser
                     var splitPhrases = stepText.Replace("c. à", "c à").Split('.').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
                     foreach (var splitPhrase in splitPhrases)
                     {
-                        var step = new Step { Id = stepId++, SubrecipeId = subrecipeId };
+                        var step = new Step { StepId = stepId++, SubrecipeId = subrecipeId };
                         var words = splitPhrase.SplitPhrase();
                         var index = 0;
                         var skippedIndexes = new List<int>();
@@ -465,7 +465,7 @@ namespace E133.Parser
                         { 
                             IsIngredientPart = true, 
                             SkippedIndexes = skippedIndexes, 
-                            IngredientId = referencedIngredient.Id 
+                            IngredientId = referencedIngredient.IngredientId 
                         };
                     }
                     else
@@ -498,7 +498,7 @@ namespace E133.Parser
                 { 
                     IsEnumerationPart = true, 
                     SkippedIndexes = skippedIndexes, 
-                    IngredientIds = ingredients.Where(x => x.SubrecipeId == subrecipeId).Select(x => x.Id).ToList() 
+                    IngredientIds = ingredients.Where(x => x.SubrecipeId == subrecipeId).Select(x => x.IngredientId).ToList() 
                 };
             }
 
@@ -580,7 +580,7 @@ namespace E133.Parser
         {
             if (recipe.Steps.All(x => x.SubrecipeId != subrecipeId))
             {
-                var subrecipe = recipe.Subrecipes.Single(x => x.Id == subrecipeId);
+                var subrecipe = recipe.Subrecipes.Single(x => x.SubrecipeId == subrecipeId);
                 recipe.Subrecipes.RemoveAt(recipe.Subrecipes.IndexOf(subrecipe));
             }
         }
@@ -591,7 +591,7 @@ namespace E133.Parser
             foreach (var ingredientString in ingredientStrings)
             {
                 var ingredient = this.ParseIngredientFromString(ingredientString);
-                ingredient.Id = currentIngredientId++;
+                ingredient.IngredientId = currentIngredientId++;
                 ingredient.SubrecipeId = currentSubrecipeId;
 
                 if (!string.IsNullOrEmpty(ingredient.Requirements))
@@ -599,9 +599,9 @@ namespace E133.Parser
                     var requirementAction = this._actionDetector.Actionify(ingredient.Requirements);
 
                     var step = new Step();
-                    step.Id = currentStepId++;
+                    step.StepId = currentStepId++;
                     step.SubrecipeId = RequirementsSubrecipeId;
-                    step.Parts.Add(new TextPart { Value = string.Format("{0}: ", recipe.Subrecipes.Single(x => x.Id == currentSubrecipeId).Title) });
+                    step.Parts.Add(new TextPart { Value = string.Format("{0}: ", recipe.Subrecipes.Single(x => x.SubrecipeId == currentSubrecipeId).Title) });
                     step.Parts.Add(new ActionPart { Value = requirementAction });
                     step.Parts.Add(new IngredientPart { Ingredient = ingredient });
 
@@ -641,7 +641,7 @@ namespace E133.Parser
                 }
                 else if (readType == typeof(IngredientPart))
                 {
-                    var referencedIngredient = recipe.Ingredients.First(x => x.Id == int.Parse(value));
+                    var referencedIngredient = recipe.Ingredients.First(x => x.IngredientId == int.Parse(value));
                     step.Parts.Add(new IngredientPart { Ingredient = referencedIngredient });
                 }
                 else if (readType == typeof(IngredientEnumerationPart))
@@ -650,7 +650,7 @@ namespace E133.Parser
                     var ingredientIds = value.Split(',');
                     foreach (var ingredientId in ingredientIds)
                     {
-                        var referencedIngredient = recipe.Ingredients.First(x => x.Id == int.Parse(ingredientId));
+                        var referencedIngredient = recipe.Ingredients.First(x => x.IngredientId == int.Parse(ingredientId));
                         ingredients.Ingredients.Add(referencedIngredient);
                     }
 

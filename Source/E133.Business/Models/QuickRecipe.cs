@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 
-using Newtonsoft.Json;
-
 namespace E133.Business.Models
 {
     public class QuickRecipe : Document

@@ -10,7 +10,7 @@ namespace E133.Business.Models
     [JsonConverter(typeof(PartConverter))]
     public abstract class Part
     {
-        public abstract string Type { get; }
+        public abstract string Type { get; set; }
 
         internal abstract string DebuggerDisplay { get; }
     }

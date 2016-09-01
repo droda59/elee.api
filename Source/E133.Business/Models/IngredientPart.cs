@@ -5,6 +5,7 @@ namespace E133.Business.Models
         public override string Type
         {
             get { return "ingredient"; }
+            set {}
         }
 
         public Ingredient Ingredient { get; set; }

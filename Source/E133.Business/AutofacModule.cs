@@ -1,5 +1,3 @@
-using E133.Business.Repositories;
-
 using Autofac;
 
 namespace E133.Business
@@ -9,7 +7,6 @@ namespace E133.Business
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<HtmlLoader>().As<IHtmlLoader>().SingleInstance();
-            builder.RegisterType<ApiRepository>().As<IQuickRecipeRepository>().SingleInstance();
         }
     }
 }

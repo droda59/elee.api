@@ -5,11 +5,12 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
+using E133.Business;
 using E133.Business.Models;
 
 using Newtonsoft.Json;
 
-namespace E133.Business.Repositories
+namespace E133.Database.Repositories
 {
     public class ApiRepository : IQuickRecipeRepository
     {
@@ -86,7 +87,7 @@ namespace E133.Business.Repositories
                     
                     recipes = JsonConvert.DeserializeObject<List<QuickRecipe>>(content)
                         .Where(x => string.IsNullOrEmpty(query) || x.Title.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
-                        .Where(x => x.WasReviewed).ToList()
+                        .Where(x => x.WasReviewed)
                         .Select(x => 
                             new QuickRecipeSearchResult 
                             { 

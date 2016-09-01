@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 using E133.Api.Infrastructure;
+using E133.Database;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -47,9 +48,10 @@ namespace E133.Api
             {
                 options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
             });
+            
+            MongoDBConfig.RegisterClassMaps();
 
             return IocConfig.RegisterComponents(services);
-            // E133.Database.MongoDBConfig.RegisterClassMaps();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

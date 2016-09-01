@@ -2,9 +2,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+using E133.Business;
 using E133.Business.Models;
 
-namespace E133.Business.Repositories
+namespace E133.Database.Repositories
 {
     internal class InMemoryRepository : IQuickRecipeRepository
     {
@@ -51,6 +52,7 @@ namespace E133.Business.Repositories
                     .Where(x => x.Title.Contains(query))
                     .Where(x => x.WasReviewed)
                     .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients }));
+                    
             task.Wait();
 
             return task;
