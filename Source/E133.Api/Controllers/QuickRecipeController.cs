@@ -23,10 +23,10 @@ namespace E133.Api.Controllers
             return await this._repo.GetAsync(id);
         }
 
-        // [HttpPost]
-        // public async Task<bool> Post([FromBody]QuickRecipe recipe)
-        // {
-        //     return await this._repo.InsertAsync(recipe);
-        // }
+        [HttpPost]
+        public async Task<bool> Post([FromBody]QuickRecipe recipe)
+        {
+            return await this._repo.InsertAsync(recipe);
+        }
     }
 }

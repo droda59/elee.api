@@ -138,7 +138,7 @@ namespace E133.Parser
                             Title = title
                         });
 
-                    Console.WriteLine("Found subrecipe: " + title);  
+                    Console.WriteLine("Found subrecipe: " + title);
 
                     var subrecipeIngredientNodes = this.GetSubrecipeIngredientNodesFromParent(subrecipeNode);
                     this.CreateIngredientsFromNodes(subrecipeIngredientNodes, recipe, subrecipeIndex, ref ingredientId, ref stepId);
@@ -159,82 +159,86 @@ namespace E133.Parser
                 var subrecipe = recipe.Subrecipes.SingleOrDefault(x => x.Title == stepSubrecipeNode.InnerText.Trim());
                 var subrecipeId = subrecipe != null ? subrecipe.SubrecipeId : PreparationSubrecipeId;
 
+                Console.WriteLine("Stepping through subrecipe: " + stepSubrecipeNode.InnerText.Trim());
                 var stepNodes = this.GetSubrecipeSteps(stepSubrecipeNode);
-                foreach (var stepNode in stepNodes)
+                if (stepNodes != null)
                 {
-                    var stepText = stepNode.InnerText.Trim();
-                    // TODO Temp fix, localize and do better
-                    var splitPhrases = stepText.Replace("c. à", "c à").Split('.').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-                    foreach (var splitPhrase in splitPhrases)
+                    foreach (var stepNode in stepNodes)
                     {
-                        var step = new Step { StepId = stepId++, SubrecipeId = subrecipeId };
-                        var words = splitPhrase.SplitPhrase();
-                        var index = 0;
-                        var skippedIndexes = new List<int>();
-                        var phraseBuilder = new StringBuilder();
-                        Type currentlyReadType = null;
-                        while (index < words.Count)
+                        var stepText = stepNode.InnerText.Trim();
+                        // TODO Temp fix, localize and do better
+                        var splitPhrases = stepText.Replace("c. à", "c à").Split('.').Select(x => x.Trim()).Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
+                        foreach (var splitPhrase in splitPhrases)
                         {
-                            if (skippedIndexes.Contains(index))
+                            var step = new Step { StepId = stepId++, SubrecipeId = subrecipeId };
+                            var words = splitPhrase.SplitPhrase();
+                            var index = 0;
+                            var skippedIndexes = new List<int>();
+                            var phraseBuilder = new StringBuilder();
+                            Type currentlyReadType = null;
+                            while (index < words.Count)
                             {
-                                skippedIndexes.Remove(index);
-                                index++;
-                                continue;
-                            }
-
-                            var word = words[index];
-                            var previouslyReadType = currentlyReadType;
-
-                            var enumerationPartResult = this.TryParseEnumerationPart(words, index, recipe.Ingredients, subrecipeId);
-                            if(enumerationPartResult.IsEnumerationPart)
-                            {
-                                currentlyReadType = typeof(IngredientEnumerationPart);
-                                word = string.Join(",", enumerationPartResult.IngredientIds);
-                                skippedIndexes.AddRange(enumerationPartResult.SkippedIndexes);
-                            }
-                            else
-                            {
-                                var ingredientPartResult = this.TryParseIngredientPart(words, index, recipe.Ingredients, subrecipeId);
-                                if (ingredientPartResult.IsIngredientPart)
+                                if (skippedIndexes.Contains(index))
                                 {
-                                    currentlyReadType = typeof(IngredientPart);
-                                    word = ingredientPartResult.IngredientId.ToString();
-                                    skippedIndexes.AddRange(ingredientPartResult.SkippedIndexes);
+                                    skippedIndexes.Remove(index);
+                                    index++;
+                                    continue;
+                                }
+
+                                var word = words[index];
+                                var previouslyReadType = currentlyReadType;
+
+                                var enumerationPartResult = this.TryParseEnumerationPart(words, index, recipe.Ingredients, subrecipeId);
+                                if(enumerationPartResult.IsEnumerationPart)
+                                {
+                                    currentlyReadType = typeof(IngredientEnumerationPart);
+                                    word = string.Join(",", enumerationPartResult.IngredientIds);
+                                    skippedIndexes.AddRange(enumerationPartResult.SkippedIndexes);
                                 }
                                 else
                                 {
-                                    var timerPartResult = this.TryParseTimerPart(words, index);
-                                    if (timerPartResult.IsTimerPart)
+                                    var ingredientPartResult = this.TryParseIngredientPart(words, index, recipe.Ingredients, subrecipeId);
+                                    if (ingredientPartResult.IsIngredientPart)
                                     {
-                                        currentlyReadType = typeof(TimerPart);
-                                        word = string.Concat(timerPartResult.OutputFormat, timerPartResult.OutputValue);
-                                        skippedIndexes.AddRange(timerPartResult.SkippedIndexes);
-                                        skippedIndexes.Add(index + 1);
-                                    }
-                                    else if (this._actionDetector.IsAction(word.Trim()))
-                                    {
-                                        currentlyReadType = typeof(ActionPart);
+                                        currentlyReadType = typeof(IngredientPart);
+                                        word = ingredientPartResult.IngredientId.ToString();
+                                        skippedIndexes.AddRange(ingredientPartResult.SkippedIndexes);
                                     }
                                     else
                                     {
-                                        currentlyReadType = typeof(TextPart);
+                                        var timerPartResult = this.TryParseTimerPart(words, index);
+                                        if (timerPartResult.IsTimerPart)
+                                        {
+                                            currentlyReadType = typeof(TimerPart);
+                                            word = string.Concat(timerPartResult.OutputFormat, timerPartResult.OutputValue);
+                                            skippedIndexes.AddRange(timerPartResult.SkippedIndexes);
+                                            skippedIndexes.Add(index + 1);
+                                        }
+                                        else if (this._actionDetector.IsAction(word.Trim()))
+                                        {
+                                            currentlyReadType = typeof(ActionPart);
+                                        }
+                                        else
+                                        {
+                                            currentlyReadType = typeof(TextPart);
+                                        }
                                     }
                                 }
+
+                                if (previouslyReadType != null && previouslyReadType != currentlyReadType)
+                                {
+                                    this.FlushPhrasePart(recipe, step, phraseBuilder, previouslyReadType);
+                                }
+
+                                phraseBuilder.AppendFormat(" {0}", word);
+
+                                index++;
                             }
 
-                            if (previouslyReadType != null && previouslyReadType != currentlyReadType)
-                            {
-                                this.FlushPhrasePart(recipe, step, phraseBuilder, previouslyReadType);
-                            }
+                            this.FlushPhrasePart(recipe, step, phraseBuilder, currentlyReadType);
 
-                            phraseBuilder.AppendFormat(" {0}", word);
-
-                            index++;
+                            recipe.Steps.Add(step);
                         }
-
-                        this.FlushPhrasePart(recipe, step, phraseBuilder, currentlyReadType);
-
-                        recipe.Steps.Add(step);
                     }
                 }
             }
@@ -590,6 +594,8 @@ namespace E133.Parser
             var ingredientStrings = ingredientNodes.Select(x => x.InnerText.Trim()).ToList();
             foreach (var ingredientString in ingredientStrings)
             {
+                Console.WriteLine("Found ingredient string: " + ingredientString);  
+
                 var ingredient = this.ParseIngredientFromString(ingredientString);
                 ingredient.IngredientId = currentIngredientId++;
                 ingredient.SubrecipeId = currentSubrecipeId;
