@@ -28,5 +28,11 @@ namespace E133.Api.Controllers
         {
             return await this._repo.InsertAsync(recipe);
         }
+
+        [HttpPut]
+        public async Task<bool> Put([FromBody]QuickRecipe recipe)
+        {
+            return await this._repo.UpdateAsync(recipe);
+        }
     }
 }
