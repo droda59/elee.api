@@ -7,6 +7,8 @@ namespace E133.Business
 {
     public interface IQuickRecipeRepository
     {
+        Task<IEnumerable<QuickRecipeSearchResult>> GetAsync();
+        
         Task<QuickRecipe> GetAsync(string id);
 
         Task<bool> UpdateAsync(QuickRecipe recipe);

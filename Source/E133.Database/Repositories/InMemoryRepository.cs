@@ -11,6 +11,18 @@ namespace E133.Database.Repositories
     {
         private readonly static IDictionary<string, QuickRecipe> _knownRecipes = new Dictionary<string, QuickRecipe>();
 
+        public Task<IEnumerable<QuickRecipeSearchResult>> GetAsync()
+        {
+            var task = Task.Run(() =>
+                _knownRecipes.Values
+                    .Where(x => !x.WasReviewed)
+                    .Select(x => new QuickRecipeSearchResult { Id = x.Id, Title = x.Title, SmallImageUrl = x.SmallImageUrl, Ingredients = x.Ingredients }));
+                    
+            task.Wait();
+
+            return task;
+        }
+
         public Task<QuickRecipe> GetAsync(string id)
         {
             var task = Task.Run(() => _knownRecipes[id]);

@@ -14,6 +14,34 @@ namespace E133.Database.Repositories
 {
     public class ApiRepository : IQuickRecipeRepository
     {
+        public async Task<IEnumerable<QuickRecipeSearchResult>> GetAsync()
+        {
+            var recipes = new List<QuickRecipeSearchResult>();
+
+            var url = "https://api.mlab.com/api/1/databases/e133/collections/quickrecipe?apiKey=tEW3mV3EqhPQo-IVY2je7cL5Zo0ztYQy";
+            using (var client = new HttpClient())
+            {
+                var data = await client.GetAsync(url);
+                if (data.IsSuccessStatusCode)
+                {
+                    var content = await data.Content.ReadAsStringAsync();
+                    
+                    recipes = JsonConvert.DeserializeObject<List<QuickRecipe>>(content)
+                        .Where(x => !x.WasReviewed)
+                        .Select(x => 
+                            new QuickRecipeSearchResult 
+                            { 
+                                Id = x.Id, 
+                                Title = x.Title, 
+                                SmallImageUrl = x.SmallImageUrl
+                            })
+                        .ToList();
+                }
+            }
+            
+            return recipes;
+        }
+
         public async Task<QuickRecipe> GetAsync(string id)
         {
             QuickRecipe recipe = null;
