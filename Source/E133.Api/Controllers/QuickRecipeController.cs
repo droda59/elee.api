@@ -32,6 +32,9 @@ namespace E133.Api.Controllers
         [HttpPut]
         public async Task<bool> Put([FromBody]QuickRecipe recipe)
         {
+            recipe.WasReviewed = true;
+            recipe.MarkedForReview = false;
+            
             return await this._repo.UpdateAsync(recipe);
         }
     }
