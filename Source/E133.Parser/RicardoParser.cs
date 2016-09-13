@@ -72,11 +72,11 @@ namespace E133.Parser
             if (noteNode != null)
             {
                 var tipsNodes = noteNode
-                    .SelectNodes(".//p")
+                    .SelectNodes(".//div[@class='content']")
                     .Select(x => x.InnerText)
                     .ToList();
                         
-                return string.Join(string.Empty, tipsNodes);
+                return string.Join(string.Empty, tipsNodes).Trim();
             }
 
             return string.Empty;
