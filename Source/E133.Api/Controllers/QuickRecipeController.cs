@@ -29,13 +29,13 @@ namespace E133.Api.Controllers
             return await this._repo.InsertAsync(recipe);
         }
 
-        [HttpPut]
-        public async Task<bool> Put([FromBody]QuickRecipe recipe)
+        [HttpPut("{id}")]
+        public async Task<bool> Put(string id, [FromBody]QuickRecipe recipe)
         {
             recipe.WasReviewed = true;
             recipe.MarkedForReview = false;
             
-            return await this._repo.UpdateAsync(recipe);
+            return await this._repo.UpdateAsync(id, recipe);
         }
     }
 }

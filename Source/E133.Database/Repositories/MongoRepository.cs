@@ -33,9 +33,9 @@ namespace E133.Database.Repositories
             return await this.Collection.Find(x => x.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> UpdateAsync(QuickRecipe data)
+        public async Task<bool> UpdateAsync(string id, QuickRecipe data)
         {
-            var result = await this.Collection.FindOneAndReplaceAsync(x => x.Id == data.Id, data);
+            var result = await this.Collection.FindOneAndReplaceAsync(x => x.Id == id, data);
 
             return result != null;
         }

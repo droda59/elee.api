@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace E133.Database.Repositories
 {
-    public class ApiRepository : IQuickRecipeRepository
+    public class ApiRepository// : IQuickRecipeRepository
     {
         public async Task<IEnumerable<QuickRecipeSearchResult>> GetAsync()
         {

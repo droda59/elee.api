@@ -34,6 +34,7 @@ namespace E133.Api
         {
             // Add framework services.
             services
+                .AddCors()
                 .AddMvc()
                 .AddJsonOptions(options =>
                 {

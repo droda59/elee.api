@@ -7,7 +7,7 @@ using E133.Business.Models;
 
 namespace E133.Database.Repositories
 {
-    internal class InMemoryRepository : IQuickRecipeRepository
+    internal class InMemoryRepository// : IQuickRecipeRepository
     {
         private readonly static IDictionary<string, QuickRecipe> _knownRecipes = new Dictionary<string, QuickRecipe>();
 

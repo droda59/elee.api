@@ -34,7 +34,7 @@ namespace E133.Api.Controllers
             recipe.WasReviewed = false;
             recipe.MarkedForReview = true;
 
-            var updateSuccessful = await this._repo.UpdateAsync(recipe);
+            var updateSuccessful = await this._repo.UpdateAsync(id, recipe);
 
             return updateSuccessful;
         }
