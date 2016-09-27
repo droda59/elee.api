@@ -59,7 +59,7 @@ namespace E133.Business.Serialization
                 case MeasureUnit.Teaspoon: return "tsp";
                 case MeasureUnit.Tablespoon: return "tbsp";
                 case MeasureUnit.Ounce: return "oz";
-                case MeasureUnit.Cup: return "cups";
+                case MeasureUnit.Cup: return "cup";
                 case MeasureUnit.Unit: return "unit";
                 case MeasureUnit.Pinch: return "pinch";
                 case MeasureUnit.Gram: return "g";
