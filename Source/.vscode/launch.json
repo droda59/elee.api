@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceRoot}/E133.Api/bin/Debug/netcoreapp1.0/E133.Api.dll",
+            "program": "${workspaceRoot}/E133.Crawler/bin/Debug/netcoreapp1.0/E133.Crawler.dll",
             "args": [],
             "cwd": "${workspaceRoot}",
             "stopAtEntry": false,

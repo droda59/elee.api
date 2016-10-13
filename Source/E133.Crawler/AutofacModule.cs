@@ -1,5 +1,7 @@
 using Autofac;
 
+using E133.Parser.LanguageUtilities;
+
 namespace E133.Crawler
 {
     public class AutofacModule : Module
@@ -8,6 +10,10 @@ namespace E133.Crawler
         {
             builder.RegisterType<RicardoCrawler>()
                 .As<IHtmlCrawler>()
+                .SingleInstance();
+
+            builder.RegisterType<FileVerbProvider>()
+                .As<IVerbProvider>()
                 .SingleInstance();
         }
     }

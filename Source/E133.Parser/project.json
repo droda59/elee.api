@@ -3,7 +3,6 @@
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
-    "Microsoft.AspNetCore.Hosting": "1.0.0",
     "Autofac": "4.0.0",
     "HtmlAgilityPack.NetCore": "1.4.9.2",
     "E133.Business": "1.0.0.*"

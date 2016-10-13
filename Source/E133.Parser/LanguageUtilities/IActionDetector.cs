@@ -1,6 +1,6 @@
 namespace E133.Parser.LanguageUtilities
 {
-    internal interface IActionDetector
+    public interface IActionDetector
     {
         bool IsAction(string part);
 

@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 using Autofac;
 
 using E133.Business;
-using E133.Business.Bases;
+using E133.Database;
 using E133.Parser;
 
 namespace E133.Crawler
@@ -20,16 +20,19 @@ namespace E133.Crawler
 
         static async Task MainAsync()
         {
+            MongoDBConfig.RegisterClassMaps();
+
 			var builder = new ContainerBuilder();
             builder.RegisterModule(new E133.Business.AutofacModule());
             builder.RegisterModule(new E133.Crawler.AutofacModule());
+            builder.RegisterModule(new E133.Database.AutofacModule());
             builder.RegisterModule(new E133.Parser.AutofacModule());
             var container = builder.Build();
             
-            // var repo = container.Resolve<IQuickRecipeRepository>();
+            var repo = container.Resolve<IQuickRecipeRepository>();
             var knownCrawlers = container.Resolve<IEnumerable<IHtmlCrawler>>();
             var recipeCount = 0;
-
+            var parserFactory = container.Resolve<IParserFactory>();
 
             var sw = Stopwatch.StartNew();
 
@@ -44,34 +47,44 @@ namespace E133.Crawler
                 var sw2 = Stopwatch.StartNew();
                 foreach (var link in allSiteLinks) 
                 {
-                //     var isRecipe = parser.IsRecipePage(link);
-                //     if (isRecipe)
-                //     {
-                //         var recipe = await parser.ParseHtmlAsync(link);
-                //         if (recipe != null)
-                //         {
-                            Uri result = null;
-                            if (Uri.TryCreate(crawler.Base.Domain, link, out result))
+                    Uri result = null;
+                    if (Uri.TryCreate(crawler.Base.Domain, link, out result))
+                    {
+                        if (await crawler.IsRecipeLink(result))
+                        {
+                            Console.WriteLine("Found a recipe! " + result.AbsoluteUri);
+                            recipeCount++;
+
+                            try 
                             {
-                                // Console.WriteLine("Parsing of " + result.AbsoluteUri + " was successful.");
-                                if (await crawler.IsRecipeLink(result))
+                                var recipe = await parserFactory.CreateParser(result).ParseHtmlAsync(result);
+                                if (recipe != null)
                                 {
-                                    Console.WriteLine("Found a recipe! " + result.AbsoluteUri);
-                                    recipeCount++;
+                                    var recipeByTitle = await repo.GetByUrlAsync(result.AbsoluteUri);
+                                    if (recipeByTitle == null) 
+                                    {
+                                        var response = await repo.InsertAsync(recipe);
+                                        if (response)
+                                        {
+                                            Console.WriteLine("Recipe was successfully added to repo.");
+                                        }
+                                        else 
+                                        {
+                                            Console.WriteLine("Could not add recipe for some reason");
+                                        }
+                                    }
+                                    else 
+                                    {
+                                        Console.WriteLine("Recipe already exists.");
+                                    }
                                 }
                             }
-
-                //             var success = await repo.InsertAsync(recipe);
-                //             if (success)
-                //             {
-                //                 Console.WriteLine("Recipe " + link + " was successfully added to repo. Removing link.");
-                //             }
-                //         }
-                //         else
-                //         {
-                //             Console.WriteLine("Parsing of " + link + " was UNsuccessful.");
-                //         }
-                //     }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine("Found a problem with recipe " + result.AbsoluteUri + ": " + e.Message);
+                            }
+                        }
+                    }
                 }
                 Console.WriteLine("Took " + sw2.Elapsed.ToString("c") + " to check recipe links.");
                 sw2.Stop();

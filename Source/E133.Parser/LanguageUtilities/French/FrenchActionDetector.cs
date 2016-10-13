@@ -1,37 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Hosting;
 
 namespace E133.Parser.LanguageUtilities.French
 {
     internal class FrenchActionDetector : IActionDetector
     {
-        private readonly HashSet<string> _acceptedActions;
+        private readonly IVerbProvider _verbProvider;
         private readonly StringIgnoreCaseComparer _stringIgnoreCaseComparer;
         private readonly Regex _wordExpression;
 
-        public FrenchActionDetector(IHostingEnvironment environment)
+        public FrenchActionDetector(IVerbProvider verbProvider)
         {
             this._stringIgnoreCaseComparer = new StringIgnoreCaseComparer();
-            this._acceptedActions = new HashSet<string>();
+            this._verbProvider = verbProvider;
             this._wordExpression = new Regex(@"[\w()�]+['�]*|[,]|[\)]\b", RegexOptions.Compiled);
-
-            var fileInfo = environment.WebRootFileProvider.GetFileInfo(@"/Resources/FrenchVerbs.txt");
-            using (var stream = fileInfo.CreateReadStream())
-            {
-                using (var reader = new StreamReader(stream))
-                {
-                    string line;
-                    while ((line = reader.ReadLine()) != null)
-                    {
-                        this._acceptedActions.Add(line);
-                    }
-                }
-            }
         }
 
         public bool IsAction(string part)
@@ -43,7 +27,7 @@ namespace E133.Parser.LanguageUtilities.French
                 || part.EndsWith("vre", StringComparison.OrdinalIgnoreCase)
                 || part.EndsWith("dre", StringComparison.OrdinalIgnoreCase))
             {
-                return this._acceptedActions.Contains(part, this._stringIgnoreCaseComparer);
+                return this._verbProvider.AcceptedVerbs.Contains(part, this._stringIgnoreCaseComparer);
             }
 
             return false;

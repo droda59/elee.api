@@ -70,7 +70,8 @@ namespace E133.Crawler
                     
                     isRecipe = document.DocumentNode
                         .SelectSingleNode(".//div[@id='block-system-main']")
-                        .SelectSingleNode(".//div[@class='recipe-content']") != null;
+                        .SelectSingleNode(".//div[@class='content']")
+                        .SelectSingleNode(".//div[contains(@class, 'recipe-detail-page')]") != null;
                 }
             }
             catch (System.Exception)
@@ -145,6 +146,7 @@ namespace E133.Crawler
                             {
                                 discoveredLinks.Add(absoluteTrim);
                                 unprocessedLinks.Add(result);
+
                                 continue;
                             }
                         }
