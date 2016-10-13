@@ -10,9 +10,9 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - dotnet restore
-          - dotnet build E133.Api/
-          - dotnet build E133.Business/
-          - dotnet build E133.Crawler/
-          - dotnet build E133.Database/
-          - dotnet build E133.Parser/
-          - dotnet test E133.Parser.Tests/
+          - dotnet build E133.Api
+          - dotnet build E133.Business
+          - dotnet build E133.Crawler
+          - dotnet build E133.Database
+          - dotnet build E133.Parser
+          - dotnet test E133.Parser.Tests
