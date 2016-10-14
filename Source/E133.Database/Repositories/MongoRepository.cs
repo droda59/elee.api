@@ -11,10 +11,10 @@ namespace E133.Database.Repositories
 {
     internal class MongoRepository : EntityRepository<QuickRecipe>, IQuickRecipeRepository
     {
-        public async Task<IEnumerable<QuickRecipeSearchResult>> GetAsync()
+        public async Task<IEnumerable<QuickRecipeSearchResult>> GetReviewedAsync(bool wasReviewed)
         {
             var builder = Builders<QuickRecipe>.Filter;
-            var filter = builder.Eq(x => x.WasReviewed, false);
+            var filter = builder.Eq(x => x.WasReviewed, wasReviewed);
 
             var results = await this.Collection.Find(filter).ToListAsync();
             return results

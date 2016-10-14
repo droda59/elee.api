@@ -18,14 +18,6 @@ namespace E133.Api.Controllers
             this._repo = repo;
         }
 
-        [HttpGet]
-        public async Task<IEnumerable<QuickRecipeSearchResult>> Get()
-        {
-            var recipes = await this._repo.GetAsync();
-
-            return recipes;
-        }
-
         [HttpPut]
         [Route("flag/{id}")]
         public async Task<bool> MarkForReview(string id)

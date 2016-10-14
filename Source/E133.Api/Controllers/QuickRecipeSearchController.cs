@@ -21,6 +21,15 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
+        [Route("api/quickrecipe/search/review")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> Reviewed(bool reviewed)
+        {
+            var recipes = await this._repo.GetReviewedAsync(reviewed);
+
+            return recipes;
+        }
+
+        [HttpGet]
         [Route("api/quickrecipe/search")]
         public async Task<IEnumerable<QuickRecipeSearchResult>> Get(string query)
         {
