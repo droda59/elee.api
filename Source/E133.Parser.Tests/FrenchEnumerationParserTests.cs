@@ -16,12 +16,12 @@ namespace E133.Parser.Tests
         public FrenchEnumerationParserTests()
         {
             this._ingredients = new Ingredient[] 
-                {
-                    new Ingredient { Id = 1, SubrecipeId = 0, Name = "carottes" },
-                    new Ingredient { Id = 2, SubrecipeId = 0, Name = "avocat" },
-                    new Ingredient { Id = 3, SubrecipeId = 0, Name = "boeuf" },
-                    new Ingredient { Id = 4, SubrecipeId = 0, Name = "nouille" }
-                };
+            {
+                new Ingredient { IngredientId = 1, SubrecipeId = 0, Name = "carottes" },
+                new Ingredient { IngredientId = 2, SubrecipeId = 0, Name = "avocat" },
+                new Ingredient { IngredientId = 3, SubrecipeId = 0, Name = "boeuf" },
+                new Ingredient { IngredientId = 4, SubrecipeId = 0, Name = "nouille" }
+            };
 
             this._parser = new RicardoParser(null, x => null, x => null, x => null, x => new FrenchLanguageHelper(), x => null);
             this._parser.InitializeCulture("fr");
@@ -151,7 +151,7 @@ namespace E133.Parser.Tests
             Assert.True(result.IsEnumerationPart);
             Assert.Equal(3, result.SkippedIndexes.Count());
             Assert.Equal(this._ingredients.Count(), result.IngredientIds.Count());
-            Assert.All(this._ingredients, x => Assert.Contains(x.Id, result.IngredientIds));
+            Assert.All(this._ingredients, x => Assert.Contains(x.IngredientId, result.IngredientIds));
         }
     }
 }

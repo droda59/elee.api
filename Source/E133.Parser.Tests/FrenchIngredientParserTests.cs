@@ -15,12 +15,12 @@ namespace E133.Parser.Tests
         public FrenchIngredientParserTests()
         {
             this._ingredients = new Ingredient[] 
-                {
-                    new Ingredient { Id = 1, SubrecipeId = 0, Name = "carottes" },
-                    new Ingredient { Id = 2, SubrecipeId = 0, Name = "avocat" },
-                    new Ingredient { Id = 3, SubrecipeId = 0, Name = "boeuf" },
-                    new Ingredient { Id = 4, SubrecipeId = 0, Name = "nouille" }
-                };
+            {
+                new Ingredient { IngredientId = 1, SubrecipeId = 0, Name = "carottes" },
+                new Ingredient { IngredientId = 2, SubrecipeId = 0, Name = "avocat" },
+                new Ingredient { IngredientId = 3, SubrecipeId = 0, Name = "boeuf" },
+                new Ingredient { IngredientId = 4, SubrecipeId = 0, Name = "nouille" }
+            };
 
             this._parser = new RicardoParser(null, x => null, x => null, x => null, x => new FrenchLanguageHelper(), x => null);
             this._parser.InitializeCulture("fr");
