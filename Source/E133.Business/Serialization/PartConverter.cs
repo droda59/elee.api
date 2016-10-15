@@ -22,6 +22,7 @@ namespace E133.Business.Serialization
             switch (jObject["type"].Value<string>())
             {
                 case "ingredient": return JsonConvert.DeserializeObject<IngredientPart>(jObject.ToString(), SpecifiedSubclassConversion);
+                case "quantity": return JsonConvert.DeserializeObject<QuantityOfIngredientPart>(jObject.ToString(), SpecifiedSubclassConversion);
                 case "action": return JsonConvert.DeserializeObject<ActionPart>(jObject.ToString(), SpecifiedSubclassConversion); 
                 case "enumeration": return JsonConvert.DeserializeObject<IngredientEnumerationPart>(jObject.ToString(), SpecifiedSubclassConversion); 
                 case "text": return JsonConvert.DeserializeObject<TextPart>(jObject.ToString(), SpecifiedSubclassConversion); 

@@ -55,6 +55,7 @@ namespace E133.Database
                         x.AddKnownType(typeof(TextPart));
                         x.AddKnownType(typeof(TimerPart));
                         x.AddKnownType(typeof(IngredientPart));
+                        x.AddKnownType(typeof(QuantityOfIngredientPart));
                         x.AddKnownType(typeof(IngredientEnumerationPart));
                     });
 
