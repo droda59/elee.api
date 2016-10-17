@@ -34,6 +34,7 @@ namespace E133.Api
         {
             // Add framework services.
             services
+                .AddOptions()
                 .AddCors()
                 .AddMvc()
                 .AddJsonOptions(options =>
@@ -50,6 +51,7 @@ namespace E133.Api
                 options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
             });
             
+            services.Configure<MongoDBOptions>(Configuration.GetSection("mongodb"));
             MongoDBConfig.RegisterClassMaps();
 
             return IocConfig.RegisterComponents(services);

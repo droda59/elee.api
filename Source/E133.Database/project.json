@@ -3,6 +3,7 @@
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
+    "Microsoft.Extensions.Options": "1.0.0",
     "MongoDB.Driver": "2.3.0-rc1",
     "E133.Business": "1.0.0.*"
   },

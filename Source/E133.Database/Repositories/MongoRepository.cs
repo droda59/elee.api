@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Options;
+
 using E133.Business;
 using E133.Business.Models;
 
@@ -11,6 +13,11 @@ namespace E133.Database.Repositories
 {
     internal class MongoRepository : EntityRepository<QuickRecipe>, IQuickRecipeRepository
     {
+        public MongoRepository(IOptions<MongoDBOptions> options)
+            : base(options) 
+        {
+        }
+        
         public async Task<IEnumerable<QuickRecipeSearchResult>> GetReviewedAsync(bool wasReviewed)
         {
             var builder = Builders<QuickRecipe>.Filter;

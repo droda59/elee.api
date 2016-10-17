@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Options;
+
 using MongoDB.Driver;
 
 namespace E133.Database
@@ -6,10 +8,10 @@ namespace E133.Database
     {
         private readonly IMongoCollection<TDocument> _collection;
 
-        protected EntityRepository()
+        protected EntityRepository(IOptions<MongoDBOptions> options)
         {
-            var client = new MongoClient("mongodb://admin:e133@ds064748.mlab.com:64748/e133");
-            var database = client.GetDatabase("e133");
+            var client = new MongoClient(options.Value.ConnectionString);
+            var database = client.GetDatabase(options.Value.DatabaseName);
 
             this._collection = database.GetCollection<TDocument>(typeof(TDocument).Name.ToLower());
         }
