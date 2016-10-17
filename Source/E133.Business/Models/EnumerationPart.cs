@@ -22,7 +22,7 @@ namespace E133.Business.Models
         {
             get
             {
-                return string.Join(", ", this.Parts.Select(x => x.DebuggerDisplay));
+                return string.Join(" ", this.Parts.Select(x => x.DebuggerDisplay));
             }
         }
     }
