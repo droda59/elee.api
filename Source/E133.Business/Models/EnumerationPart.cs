@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace E133.Business.Models
 {
-    public class IngredientEnumerationPart : Part
+    public class EnumerationPart : Part
     {
-        public IngredientEnumerationPart()
+        public EnumerationPart()
         {
-            this.Ingredients = new List<Ingredient>();
+            this.Parts = new List<Part>();
         }
 
         public override string Type
@@ -15,13 +16,13 @@ namespace E133.Business.Models
             set {}
         }
 
-        public IList<Ingredient> Ingredients { get; set; }
+        public IList<Part> Parts { get; set; }
 
         internal override string DebuggerDisplay
         {
             get
             {
-                return string.Join(", ", this.Ingredients);
+                return string.Join(", ", this.Parts.Select(x => x.DebuggerDisplay));
             }
         }
     }

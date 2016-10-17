@@ -56,7 +56,7 @@ namespace E133.Database
                         x.AddKnownType(typeof(TimerPart));
                         x.AddKnownType(typeof(IngredientPart));
                         x.AddKnownType(typeof(QuantityOfIngredientPart));
-                        x.AddKnownType(typeof(IngredientEnumerationPart));
+                        x.AddKnownType(typeof(EnumerationPart));
                     });
 
             BsonClassMap.RegisterClassMap<Quantity>(

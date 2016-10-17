@@ -191,7 +191,7 @@ namespace E133.Parser
                                 var enumerationPartResult = this.TryParseEnumerationPart(words, index, recipe.Ingredients, subrecipeId);
                                 if(enumerationPartResult.IsEnumerationPart)
                                 {
-                                    currentlyReadType = typeof(IngredientEnumerationPart);
+                                    currentlyReadType = typeof(EnumerationPart);
                                     word = string.Join(",", enumerationPartResult.IngredientIds);
                                     skippedIndexes.AddRange(enumerationPartResult.SkippedIndexes);
                                 }
@@ -650,17 +650,20 @@ namespace E133.Parser
                     var referencedIngredient = recipe.Ingredients.First(x => x.IngredientId == int.Parse(value));
                     step.Parts.Add(new IngredientPart { Ingredient = referencedIngredient });
                 }
-                else if (readType == typeof(IngredientEnumerationPart))
+                else if (readType == typeof(EnumerationPart))
                 {
-                    var ingredients = new IngredientEnumerationPart();
+                    var enumeration = new EnumerationPart();
                     var ingredientIds = value.Split(',');
                     foreach (var ingredientId in ingredientIds)
                     {
                         var referencedIngredient = recipe.Ingredients.First(x => x.IngredientId == int.Parse(ingredientId));
-                        ingredients.Ingredients.Add(referencedIngredient);
+                        var ingredientPart = new IngredientPart();
+                        ingredientPart.Ingredient = referencedIngredient;
+                        
+                        enumeration.Parts.Add(ingredientPart);
                     }
 
-                    step.Parts.Add(ingredients);
+                    step.Parts.Add(enumeration);
                 }
             }
         }
