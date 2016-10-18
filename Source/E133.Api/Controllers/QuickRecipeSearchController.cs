@@ -60,7 +60,7 @@ namespace E133.Api.Controllers
             }
 
             return results
-                // .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
+                .Where(x => x.Ingredients.Select(y => y.Name).Intersect(includedIngredients).Count() == x.Ingredients.Count())
                 // .Where(x => x.Ingredients.Select(y => y.Name).Except(excludedIngredients).Count() == x.Ingredients.Count())
                 .Where(x => new TimeSpan(x.Durations.Sum(y => XmlConvert.ToTimeSpan(y.Time).Ticks)) <= maximumTimeIsoNotation.Value)
                 .ToList();
