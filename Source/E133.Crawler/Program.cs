@@ -27,6 +27,7 @@ namespace E133.Crawler
             builder.RegisterModule(new E133.Crawler.AutofacModule());
             builder.RegisterModule(new E133.Database.AutofacModule());
             builder.RegisterModule(new E133.Parser.AutofacModule());
+
             var container = builder.Build();
             
             var repo = container.Resolve<IQuickRecipeRepository>();

@@ -103,6 +103,12 @@ namespace E133.Crawler
                     // TODO Log bitch
                     unprocessedLinks.Remove(link);
                 }
+
+                if (discoveredLinks.Count() >= 500)
+                {
+                    break;
+                }
+
             } while ((link = unprocessedLinks.FirstOrDefault()) != null);
 
             return discoveredLinks;
@@ -145,6 +151,12 @@ namespace E133.Crawler
                             if (!discoveredLinks.Contains(absoluteTrim))
                             {
                                 discoveredLinks.Add(absoluteTrim);
+
+                                if (await this.IsRecipeLink(result))
+                                {
+                                    break;
+                                }
+                                
                                 unprocessedLinks.Add(result);
 
                                 continue;
