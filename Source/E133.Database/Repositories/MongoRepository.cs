@@ -45,6 +45,11 @@ namespace E133.Database.Repositories
             return await this.Collection.Find(x => x.OriginalUrl == url).FirstOrDefaultAsync();
         }
 
+        public async Task<QuickRecipe> GetByUniqueNameAsync(string uniqueName)
+        {
+            return await this.Collection.Find(x => x.UniqueName == uniqueName).FirstOrDefaultAsync();
+        }
+
         public async Task<bool> UpdateAsync(string id, QuickRecipe data)
         {
             var result = await this.Collection.FindOneAndReplaceAsync(x => x.Id == id, data);

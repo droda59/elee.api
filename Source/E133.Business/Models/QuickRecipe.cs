@@ -23,6 +23,8 @@ namespace E133.Business.Models
 
 		public string Title { get; set; }
 
+		public string UniqueName { get; set; }
+
         public string OriginalUrl { get; set; }
         
         public string Language { get; set; }

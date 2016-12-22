@@ -22,6 +22,8 @@ namespace E133.Parser
         protected const int PreparationSubrecipeId = -1;
 
         private readonly IHtmlLoader _htmlLoader;
+        private readonly IRecipeNameGenerator _nameGenerator;
+        private readonly INameUnicityOverseer _nameUnicityOverseer;
         private readonly Regex _quantityExpression;
         private readonly Regex _quantityRangeExpression;
         private readonly Regex _ingredientExpression;
@@ -44,6 +46,8 @@ namespace E133.Parser
 
         protected HtmlDocumentParser(
             IHtmlLoader htmlLoader,
+            IRecipeNameGenerator nameGenerator, 
+            INameUnicityOverseer nameUnicityOverseer,
             Func<CultureInfo, IActionDetector> actionDetectorFactory, 
             Func<CultureInfo, ITimerDetector> timerDetectorFactory,
             Func<CultureInfo, IMeasureUnitDetector> measureUnitDetectorFactory,
@@ -51,6 +55,8 @@ namespace E133.Parser
             Func<CultureInfo, ISubrecipeRepository> subrecipeRepositoryFactory)
         {
             this._htmlLoader = htmlLoader;
+            this._nameGenerator = nameGenerator;
+            this._nameUnicityOverseer = nameUnicityOverseer;
             this._actionDetectorFactory = actionDetectorFactory;
             this._timerDetectorFactory = timerDetectorFactory;
             this._measureUnitDetectorFactory = measureUnitDetectorFactory;
@@ -109,6 +115,11 @@ namespace E133.Parser
 
             recipe.Title = this.GetRecipeTitle(document);
             Console.WriteLine("Found title: " + recipe.Title);
+
+            var generatedName = this._nameGenerator.GenerateName(recipe);
+            var uniqueName = await this._nameUnicityOverseer.GenerateUniqueName(generatedName);
+            recipe.UniqueName = uniqueName;
+            Console.WriteLine("Found unique name: " + recipe.UniqueName);
 
             recipe.Durations = this.GetDurations(document).ToList();
             foreach (var duration in recipe.Durations)

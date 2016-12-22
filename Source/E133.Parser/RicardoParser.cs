@@ -18,12 +18,14 @@ namespace E133.Parser
     {
         public RicardoParser(
             IHtmlLoader htmlLoader,
+            IRecipeNameGenerator nameGenerator, 
+            INameUnicityOverseer nameUnicityOverseer,
             Func<CultureInfo, IActionDetector> actionDetectorFactory, 
             Func<CultureInfo, ITimerDetector> timerDetectorFactory,
             Func<CultureInfo, IMeasureUnitDetector> measureUnitDetectorFactory,
             Func<CultureInfo, ILanguageHelper> languageHelperFactory,
             Func<CultureInfo, ISubrecipeRepository> subrecipeRepositoryFactory) 
-            : base(htmlLoader, actionDetectorFactory, timerDetectorFactory, measureUnitDetectorFactory, languageHelperFactory, subrecipeRepositoryFactory)
+            : base(htmlLoader, nameGenerator, nameUnicityOverseer, actionDetectorFactory, timerDetectorFactory, measureUnitDetectorFactory, languageHelperFactory, subrecipeRepositoryFactory)
         {
         }
 

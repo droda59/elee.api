@@ -11,6 +11,8 @@ namespace E133.Business
         
         Task<QuickRecipe> GetAsync(string id);
 
+        Task<QuickRecipe> GetByUniqueNameAsync(string uniqueName);
+
         Task<QuickRecipe> GetByUrlAsync(string url);
 
         Task<bool> UpdateAsync(string id, QuickRecipe recipe);
