@@ -30,6 +30,7 @@ namespace E133.Database.Repositories
                     { 
                         Id = document.Id, 
                         Title = document.Title, 
+                        UniqueName = document.UniqueName,
                         SmallImageUrl = document.SmallImageUrl
                     })
                 .ToList();
@@ -82,6 +83,7 @@ namespace E133.Database.Repositories
                     { 
                         Id = document.Id, 
                         Title = document.Title, 
+                        UniqueName = document.UniqueName,
                         Durations = document.Durations, 
                         SmallImageUrl = document.SmallImageUrl, 
                         Ingredients = document.Ingredients 

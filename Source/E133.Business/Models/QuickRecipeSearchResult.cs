@@ -12,6 +12,8 @@ namespace E133.Business.Models
 
         public string Title { get; set; }
 
+        public string UniqueName { get; set; }
+
         public string SmallImageUrl { get; set; }
 		
 		public IList<Duration> Durations { get; set; }
