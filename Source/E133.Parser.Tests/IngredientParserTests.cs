@@ -11,7 +11,7 @@ namespace E133.Parser.Tests
 
         public IngredientParserTests()
         {
-            this._parser = new RicardoParser(null, x => null, x => null, x => new FrenchMeasureUnitDetector(), x => new FrenchLanguageHelper(), x => null);
+            this._parser = new RicardoParser(null, null, null, x => null, x => null, x => new FrenchMeasureUnitDetector(), x => new FrenchLanguageHelper(), x => null);
             this._parser.InitializeCulture("fr");
         }
 

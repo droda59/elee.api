@@ -2,6 +2,7 @@ using System.Collections.Generic;
 
 using Xunit;
 
+using E133.Business;
 using E133.Business.Models;
 using E133.Parser.LanguageUtilities.French;
 
@@ -22,7 +23,7 @@ namespace E133.Parser.Tests
                 new Ingredient { IngredientId = 4, SubrecipeId = 0, Name = "nouille" }
             };
 
-            this._parser = new RicardoParser(null, x => null, x => null, x => null, x => new FrenchLanguageHelper(), x => null);
+            this._parser = new RicardoParser(null, null, null, x => null, x => null, x => null, x => new FrenchLanguageHelper(), x => null);
             this._parser.InitializeCulture("fr");
         }
 

@@ -2,6 +2,7 @@ using System.Linq;
 
 using Xunit;
 
+using E133.Business;
 using E133.Parser.LanguageUtilities.French;
 
 namespace E133.Parser.Tests
@@ -12,7 +13,7 @@ namespace E133.Parser.Tests
 
         public FrenchTimerParserTest()
         {
-            this._parser = new RicardoParser(null, x => null, x => new FrenchTimerDetector(), x => null, x => new FrenchLanguageHelper(), x => null);
+            this._parser = new RicardoParser(null, null, null, x => null, x => new FrenchTimerDetector(), x => null, x => new FrenchLanguageHelper(), x => null);
             this._parser.InitializeCulture("fr");
         }
 

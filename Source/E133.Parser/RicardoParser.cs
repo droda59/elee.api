@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 using E133.Business;
 using E133.Business.Bases;
@@ -11,7 +10,6 @@ using E133.Parser.LanguageUtilities;
 
 using HtmlAgilityPack;
 
-[assembly: InternalsVisibleTo("E133.Parser.Tests")]
 namespace E133.Parser
 {
     internal class RicardoParser : HtmlDocumentParser<RicardoBase>
