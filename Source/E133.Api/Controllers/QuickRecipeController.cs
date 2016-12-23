@@ -18,9 +18,9 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<QuickRecipe> Get(string id)
+        public async Task<QuickRecipe> Get(string uniqueName)
         {
-            return await this._repo.GetAsync(id);
+            return await this._repo.GetByUniqueNameAsync(uniqueName);
         }
 
         [HttpPost]
