@@ -10,6 +10,7 @@ namespace E133.Database
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterType<MongoRepository>().As<IQuickRecipeRepository>().SingleInstance();
+            builder.RegisterType<ContactFormRepository>().As<IContactFormRepository>().SingleInstance();
         }
     }
 }
