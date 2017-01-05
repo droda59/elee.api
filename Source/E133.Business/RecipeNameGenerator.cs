@@ -9,8 +9,13 @@ namespace E133.Business
     {
         public string GenerateName(QuickRecipe recipe)
         {
-            var diacriticslessTitle = recipe.Title.RemoveDiacritics().ToLowerInvariant().Replace("’", string.Empty);
-            var splitTitle = diacriticslessTitle.SplitPhrase();
+            var diacriticlessTitle = recipe.Title
+                .RemoveDiacritics()
+                .Replace("’", string.Empty)
+                .Replace("(", string.Empty)
+                .Replace(")", string.Empty)
+                .ToLowerInvariant();
+            var splitTitle = diacriticlessTitle.SplitPhrase();
             var cleanTitle = string.Join("-", splitTitle.Where(x => x.Length > 2).ToList());
 
             var originalUri = new Uri(recipe.OriginalUrl);

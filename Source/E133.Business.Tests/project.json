@@ -1,5 +1,6 @@
 {
   "version": "1.0.0-*",
+  "debugType": "portable",
 
   "buildOptions": {
     "preserveCompilationContext": true
@@ -12,7 +13,8 @@
       "type": "platform"
     },
     "E133.Business": "1.0.0.*",
-    "xunit": "2.1.0-rc2-*"
+    "xunit": "2.1.0-rc2-*",
+    "Moq": "4.6.38-alpha"
   },
 
   "frameworks": {

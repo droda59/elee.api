@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 
 namespace E133.Business
@@ -21,7 +20,7 @@ namespace E133.Business
             while (recipeWithName != null && uniqueId < 99)
             {
                 uniqueId++;
-                generatedName = $"{generatedName}-{uniqueId}";
+                generatedName = $"{name}-{uniqueId}";
                 recipeWithName = await this._repo.GetByUniqueNameAsync(generatedName);
             }
             

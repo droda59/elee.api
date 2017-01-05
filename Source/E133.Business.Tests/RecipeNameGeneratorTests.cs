@@ -12,8 +12,8 @@ namespace E133.Business
     {
         private const string OriginalUrl = "http://www.ricardocuisine.com/recette";
         
-        private RecipeNameGenerator _nameGenerator;
-        private QuickRecipe _recipe;
+        private readonly RecipeNameGenerator _nameGenerator;
+        private readonly QuickRecipe _recipe;
 
         public RecipeNameGeneratorTests()
         {
@@ -27,129 +27,82 @@ namespace E133.Business
         public void GenerateName_StartsWithDomainName()
         {
             this._recipe.Title = "test";
-            this._recipe.OriginalUrl = "http://www.ricardocuisine.com/recette";
 
             var result = this._nameGenerator.GenerateName(this._recipe);
 
             Assert.StartsWith("ricardocuisine", result);
         }
 
-        // [Theory]
-        // [InlineData("Ajouter le rien du tout")]
-        // [InlineData("Ajouter l'absence d'ingrédient")]
-        // [InlineData("Ajouter les riens du tout")]
-        // [InlineData("Ajouter la nullité")]
-        // public void TryParseEnumerationPart_DoesNotHaveIngredientPart_WithDeterminant_ReturnsFalse(string phrase) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+        [Fact]
+        public void GenerateName_EndsWithTitle()
+        {
+            this._recipe.Title = "test";
 
-        //     Assert.False(result.IsEnumerationPart);
-        // }
+            var result = this._nameGenerator.GenerateName(this._recipe);
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes")]
-        // public void TryParseEnumerationPart_HasIngredientPart_DifferentSubrecipe_ReturnsFalse(string phrase) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, -1);
+            Assert.EndsWith("test", result);
+        }
 
-        //     Assert.False(result.IsEnumerationPart);
-        // }
+        [Fact]
+        public void GenerateName_LowercaseTitle()
+        {
+            this._recipe.Title = "TEsT";
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes")]
-        // [InlineData("Ajouter la carotte")]
-        // [InlineData("Ajouter l'avocat")]
-        // [InlineData("Ajouter l’avocat")]
-        // [InlineData("Ajouter le boeuf")]
-        // [InlineData("Ajouter la nouille")]
-        // public void TryParseEnumerationPart_HasIngredientPart_OnlyOneIngredient_ReturnsFalse(string phrase) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+            var result = this._nameGenerator.GenerateName(this._recipe);
 
-        //     Assert.False(result.IsEnumerationPart);
-        // }
+            Assert.EndsWith("test", result);
+        }
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes et l'avocat puis continuer", new [] { 1, 2 })]
-        // [InlineData("Ajouter les carottes et l’avocat puis continuer", new [] { 1, 2 })]
-        // [InlineData("Ajouter les carottes et le boeuf puis continuer", new [] { 1, 3 })]
-        // [InlineData("Ajouter les carottes et la nouille puis continuer", new [] { 1, 4 })]
-        // [InlineData("Ajouter l'avocat et le boeuf puis continuer", new [] { 2, 3 })]
-        // [InlineData("Ajouter l’avocat et le boeuf puis continuer", new [] { 2, 3 })]
-        // [InlineData("Ajouter l’avocat et la nouille puis continuer", new [] { 2, 4 })]
-        // [InlineData("Ajouter le boeuf et la nouille puis continuer", new [] { 3, 4 })]
-        // public void TryParseEnumerationPart_HasIngredientPart_TwoIngredients_WordSeparated_ReturnsResult(string phrase, int[] ingredientIds) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+        [Fact]
+        public void GenerateName_ReplaceSpacesWithDash()
+        {
+            this._recipe.Title = "muffins aux bleuets";
 
-        //     Assert.True(result.IsEnumerationPart);
-        //     Assert.Equal(5, result.SkippedIndexes.Count());
-        //     Assert.Collection(result.IngredientIds, 
-        //         item => Assert.Equal(ingredientIds[0], item),
-        //         item => Assert.Equal(ingredientIds[1], item));
-        // }
+            var result = this._nameGenerator.GenerateName(this._recipe);
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes et l'avocat et continuer")]
-        // [InlineData("Ajouter les carottes et l'avocat et les faire cuire")]
-        // [InlineData("Ajouter les carottes et l'avocat, puis continuer")]
-        // [InlineData("Ajouter les carottes et l'avocat, et continuer")]
-        // public void TryParseEnumerationPart_HasIngredientPart_TwoIngredients_NextWordDivider_ReturnsResult(string phrase) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+            Assert.Equal(3, result.Count(x => x == '-'));
+        }
 
-        //     Assert.True(result.IsEnumerationPart);
-        //     Assert.Equal(5, result.SkippedIndexes.Count());
-        // }
+        [Fact]
+        public void GenerateName_SeparateTitleWords()
+        {
+            this._recipe.Title = "muffins aux bleuets";
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes, l'avocat puis continuer", new [] { 1, 2 })]
-        // [InlineData("Ajouter les carottes, l’avocat puis continuer", new [] { 1, 2 })]
-        // [InlineData("Ajouter les carottes, le boeuf puis continuer", new [] { 1, 3 })]
-        // [InlineData("Ajouter les carottes, la nouille puis continuer", new [] { 1, 4 })]
-        // [InlineData("Ajouter l'avocat, le boeuf puis continuer", new [] { 2, 3 })]
-        // [InlineData("Ajouter l’avocat, le boeuf puis continuer", new [] { 2, 3 })]
-        // [InlineData("Ajouter l’avocat, la nouille puis continuer", new [] { 2, 4 })]
-        // [InlineData("Ajouter le boeuf, la nouille puis continuer", new [] { 3, 4 })]
-        // public void TryParseEnumerationPart_HasIngredientPart_TwoIngredients_ComaSeparated_ReturnsResult(string phrase, int[] ingredientIds) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+            var result = this._nameGenerator.GenerateName(this._recipe);
 
-        //     Assert.True(result.IsEnumerationPart);
-        //     Assert.Equal(5, result.SkippedIndexes.Count());
-        //     Assert.Collection(result.IngredientIds, 
-        //         item => Assert.Equal(ingredientIds[0], item),
-        //         item => Assert.Equal(ingredientIds[1], item));
-        // }
+            Assert.EndsWith("muffins-aux-bleuets", result);
+        }
 
-        // [Theory]
-        // [InlineData("Ajouter les carottes, l'avocat et le boeuf puis continuer", new [] { 1, 2, 3 })]
-        // [InlineData("Ajouter les carottes, l’avocat et le boeuf puis continuer", new [] { 1, 2, 3 })]
-        // [InlineData("Ajouter les carottes, le boeuf et la nouille puis continuer", new [] { 1, 3, 4 })]
-        // [InlineData("Ajouter l'avocat, le boeuf et la nouille puis continuer", new [] { 2, 3, 4 })]
-        // [InlineData("Ajouter l’avocat, le boeuf et la nouille puis continuer", new [] { 2, 3, 4 })]
-        // public void TryParseEnumerationPart_HasIngredientPart_ThreeIngredients_ComaWordSeparated_ReturnsResult(string phrase, int[] ingredientIds) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+        [Theory]
+        [InlineData("èmuffins aux bleuets")]
+        [InlineData("êmuffins aux bleuets")]
+        [InlineData("émuffins aux bleuets")]
+        [InlineData("àmuffins aux bleuets")]
+        [InlineData("âmuffins aux bleuets")]
+        [InlineData("ùmuffins aux bleuets")]
+        [InlineData("ëmuffins aux bleuets")]
+        [InlineData("’muffins aux bleuets")]
+        [InlineData("(muffins aux bleuets")]
+        [InlineData(")muffins aux bleuets")]
+        public void GenerateName_RemovedDiacritics(string title) 
+        {
+            this._recipe.Title = title;
 
-        //     Assert.True(result.IsEnumerationPart);
-        //     Assert.Equal(8, result.SkippedIndexes.Count());
-        //     Assert.Collection(result.IngredientIds, 
-        //         item => Assert.Equal(ingredientIds[0], item),
-        //         item => Assert.Equal(ingredientIds[1], item),
-        //         item => Assert.Equal(ingredientIds[2], item));
-        // }
+            var result = this._nameGenerator.GenerateName(this._recipe);
 
-        // [Theory]
-        // [InlineData("Ajouter tous les ingrédients et continuer")]
-        // public void TryParseEnumerationPart_HasIngredientPart_AllIngredients_ReturnsResult(string phrase) 
-        // {
-        //     var result = this._parser.TryParseEnumerationPart(phrase.SplitPhrase(), 1, this._ingredients, 0);
+            Assert.EndsWith("muffins-aux-bleuets", result);
+        }
 
-        //     Assert.True(result.IsEnumerationPart);
-        //     Assert.Equal(3, result.SkippedIndexes.Count());
-        //     Assert.Equal(this._ingredients.Count(), result.IngredientIds.Count());
-        //     Assert.All(this._ingredients, x => Assert.Contains(x.IngredientId, result.IngredientIds));
-        // }
+        [Theory]
+        [InlineData("muffins au bleuets")]
+        [InlineData("muffins o bleuets")]
+        public void GenerateName_RemoveSmallWords(string title) 
+        {
+            this._recipe.Title = title;
+
+            var result = this._nameGenerator.GenerateName(this._recipe);
+
+            Assert.EndsWith("muffins-bleuets", result);
+        }
     }
 }
