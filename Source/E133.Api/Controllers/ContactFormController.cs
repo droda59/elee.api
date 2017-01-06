@@ -29,6 +29,8 @@ namespace E133.Api.Controllers
         [HttpPost]
         public async Task<bool> Post([FromBody]ContactForm contactForm)
         {
+            contactForm.Date = DateTime.Now;
+
             return await this._repo.InsertAsync(contactForm);
         }
     }
