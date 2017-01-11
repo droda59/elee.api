@@ -21,6 +21,15 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
+        [Route("api/quickrecipe/search")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> Get(string query)
+        {
+            var results = await this._repo.SearchAsync(query);
+
+            return results.ToList();
+        }
+
+        [HttpGet]
         [Route("api/quickrecipe/search/review")]
         public async Task<IEnumerable<QuickRecipeSearchResult>> Reviewed(bool reviewed)
         {
@@ -30,10 +39,10 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
-        [Route("api/quickrecipe/search")]
-        public async Task<IEnumerable<QuickRecipeSearchResult>> Get(string query)
+        [Route("api/quickrecipe/search/paged")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> GetPaged(int skip, int take)
         {
-            var results = await this._repo.SearchAsync(query);
+            var results = await this._repo.GetPaged(skip, take);
 
             return results.ToList();
         }
