@@ -35,7 +35,15 @@ namespace E133.Api
             // Add framework services.
             services
                 .AddOptions()
-                .AddCors()
+                .AddCors(options => {
+                    var policy = new Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicy();
+                    policy.Origins.Add("*");
+                    policy.Headers.Add("*");
+                    policy.Methods.Add("*");
+                    policy.SupportsCredentials = true;
+
+                    options.AddPolicy("CorsPolicy", policy);
+                })
                 .AddMvc()
                 .AddJsonOptions(options =>
                 {
@@ -45,6 +53,7 @@ namespace E133.Api
                     settings.NullValueHandling = NullValueHandling.Ignore;
                     settings.Formatting = Formatting.Indented;
                 });
+
 
             services.AddAuthorization(options => 
             {
@@ -64,6 +73,7 @@ namespace E133.Api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseCors("CorsPolicy");
             app.UseMvc();
         }
     }

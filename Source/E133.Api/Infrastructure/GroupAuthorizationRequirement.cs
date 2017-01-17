@@ -18,9 +18,10 @@ namespace E133.Api.Infrastructure
             var mvcContext = context.Resource as Microsoft.AspNetCore.Mvc.Filters.AuthorizationFilterContext;
             if (mvcContext != null)
             {
-                if (mvcContext.HttpContext.Request.Headers.ContainsKey("x-admin"))
+                bool isAdmin = false;
+                if (bool.TryParse(mvcContext.HttpContext.Request.Headers["X-Admin"], out isAdmin))
                 {
-                    if (bool.Parse(mvcContext.HttpContext.Request.Headers["x-admin"]))
+                    if (isAdmin)
                     {
                         context.Succeed(requirement);
                     }
