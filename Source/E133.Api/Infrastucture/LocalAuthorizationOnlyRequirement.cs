@@ -15,13 +15,9 @@ namespace E133.Api.Infrastructure
                 {
                     context.Succeed(requirement);
                 }
-                else
-                {
-                    context.Fail();
-                }
             }
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

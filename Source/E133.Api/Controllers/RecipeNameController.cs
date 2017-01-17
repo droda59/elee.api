@@ -9,8 +9,7 @@ using E133.Business;
 
 namespace E133.Api.Controllers
 {
-    // TODO This has got to be local only!
-    // [Authorize(Policy = "LocalOnly")]
+    [Authorize(Policy = "LocalOnly")]
     [Route("api/[controller]")]
     public class RecipeNameController : Controller
     {
