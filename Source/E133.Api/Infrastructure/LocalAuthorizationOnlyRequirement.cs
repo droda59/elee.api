@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace E133.Api.Infrastructure
 {
-    public class LocalAuthorizationOnlyRequirement : AuthorizationHandler<LocalAuthorizationOnlyRequirement>, IAuthorizationRequirement
+    internal class LocalAuthorizationOnlyRequirement : AuthorizationHandler<LocalAuthorizationOnlyRequirement>, IAuthorizationRequirement
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, LocalAuthorizationOnlyRequirement requirement)
         {

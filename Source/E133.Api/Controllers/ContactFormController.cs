@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using E133.Business;
@@ -21,6 +21,7 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Policy = "Admin")]
         public async Task<IEnumerable<ContactForm>> Get()
         {
             return await this._repo.GetAsync();

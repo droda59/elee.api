@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using E133.Business;
@@ -31,6 +32,7 @@ namespace E133.Api.Controllers
 
         [HttpGet]
         [Route("api/quickrecipe/search/review")]
+        [Authorize(Policy = "Admin")]
         public async Task<IEnumerable<QuickRecipeSearchResult>> Reviewed(bool reviewed)
         {
             var recipes = await this._repo.GetReviewedAsync(reviewed);

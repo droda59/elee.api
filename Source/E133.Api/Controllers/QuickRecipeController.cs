@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using E133.Business;
@@ -24,12 +25,14 @@ namespace E133.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policy = "LocalOnly")]
         public async Task<bool> Post([FromBody]QuickRecipe recipe)
         {
             return await this._repo.InsertAsync(recipe);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Policy = "Admin")]
         public async Task<bool> Put(string id, [FromBody]QuickRecipe recipe)
         {
             recipe.WasReviewed = true;

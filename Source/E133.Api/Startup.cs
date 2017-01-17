@@ -49,6 +49,7 @@ namespace E133.Api
             services.AddAuthorization(options => 
             {
                 options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
+                options.AddPolicy("Admin", policy => policy.Requirements.Add(new GroupAuthorizationRequirement("Admin")));
             });
             
             services.Configure<MongoDBOptions>(Configuration.GetSection("mongodb"));
