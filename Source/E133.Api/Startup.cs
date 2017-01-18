@@ -54,7 +54,6 @@ namespace E133.Api
                     settings.Formatting = Formatting.Indented;
                 });
 
-
             services.AddAuthorization(options => 
             {
                 options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
