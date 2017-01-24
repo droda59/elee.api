@@ -35,7 +35,15 @@ namespace E133.Api
             // Add framework services.
             services
                 .AddOptions()
-                .AddCors()
+                .AddCors(options => {
+                    var policy = new Microsoft.AspNetCore.Cors.Infrastructure.CorsPolicy();
+                    policy.Origins.Add("*");
+                    policy.Headers.Add("*");
+                    policy.Methods.Add("*");
+                    policy.SupportsCredentials = true;
+
+                    options.AddPolicy("CorsPolicy", policy);
+                })
                 .AddMvc()
                 .AddJsonOptions(options =>
                 {
@@ -49,6 +57,7 @@ namespace E133.Api
             services.AddAuthorization(options => 
             {
                 options.AddPolicy("LocalOnly", policy => policy.Requirements.Add(new LocalAuthorizationOnlyRequirement()));
+                options.AddPolicy("Admin", policy => policy.Requirements.Add(new GroupAuthorizationRequirement("Admin")));
             });
             
             services.Configure<MongoDBOptions>(Configuration.GetSection("mongodb"));
@@ -63,6 +72,7 @@ namespace E133.Api
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            app.UseCors("CorsPolicy");
             app.UseMvc();
         }
     }

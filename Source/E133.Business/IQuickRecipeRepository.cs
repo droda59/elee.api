@@ -7,6 +7,8 @@ namespace E133.Business
 {
     public interface IQuickRecipeRepository
     {
+        Task<IEnumerable<QuickRecipeSearchResult>> GetPaged(int skip, int take);
+
         Task<IEnumerable<QuickRecipeSearchResult>> GetReviewedAsync(bool wasReviewed);
         
         Task<QuickRecipe> GetAsync(string id);

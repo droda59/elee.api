@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace E133.Api.Infrastructure
 {
-    public class LocalAuthorizationOnlyRequirement : AuthorizationHandler<LocalAuthorizationOnlyRequirement>, IAuthorizationRequirement
+    internal class LocalAuthorizationOnlyRequirement : AuthorizationHandler<LocalAuthorizationOnlyRequirement>, IAuthorizationRequirement
     {
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, LocalAuthorizationOnlyRequirement requirement)
         {
@@ -15,13 +15,9 @@ namespace E133.Api.Infrastructure
                 {
                     context.Succeed(requirement);
                 }
-                else
-                {
-                    context.Fail();
-                }
             }
 
-            return Task.FromResult(0);
+            return Task.CompletedTask;
         }
     }
 }

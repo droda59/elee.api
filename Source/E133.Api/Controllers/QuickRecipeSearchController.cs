@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using E133.Business;
@@ -21,7 +22,17 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
+        [Route("api/quickrecipe/search")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> Get(string query)
+        {
+            var results = await this._repo.SearchAsync(query);
+
+            return results.ToList();
+        }
+
+        [HttpGet]
         [Route("api/quickrecipe/search/review")]
+        [Authorize(Policy = "Admin")]
         public async Task<IEnumerable<QuickRecipeSearchResult>> Reviewed(bool reviewed)
         {
             var recipes = await this._repo.GetReviewedAsync(reviewed);
@@ -30,10 +41,10 @@ namespace E133.Api.Controllers
         }
 
         [HttpGet]
-        [Route("api/quickrecipe/search")]
-        public async Task<IEnumerable<QuickRecipeSearchResult>> Get(string query)
+        [Route("api/quickrecipe/search/paged")]
+        public async Task<IEnumerable<QuickRecipeSearchResult>> GetPaged(int skip, int take)
         {
-            var results = await this._repo.SearchAsync(query);
+            var results = await this._repo.GetPaged(skip, take);
 
             return results.ToList();
         }

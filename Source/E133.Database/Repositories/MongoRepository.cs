@@ -18,21 +18,27 @@ namespace E133.Database.Repositories
         {
         }
         
+        public async Task<IEnumerable<QuickRecipeSearchResult>> GetPaged(int skip = 0, int take = 0)
+        {
+            var builder = Builders<QuickRecipe>.Filter;
+            var filter = builder.Eq(x => x.WasReviewed, true);
+
+            var results = await this.Collection.Find(filter).Skip(skip).Limit(take).ToListAsync();
+
+            return results
+                .Select(CreateSearchResult)
+                .ToList();
+        }
+        
         public async Task<IEnumerable<QuickRecipeSearchResult>> GetReviewedAsync(bool wasReviewed)
         {
             var builder = Builders<QuickRecipe>.Filter;
             var filter = builder.Eq(x => x.WasReviewed, wasReviewed);
 
             var results = await this.Collection.Find(filter).ToListAsync();
+
             return results
-                .Select(document => 
-                    new QuickRecipeSearchResult 
-                    { 
-                        Id = document.Id, 
-                        Title = document.Title, 
-                        UniqueName = document.UniqueName,
-                        SmallImageUrl = document.SmallImageUrl
-                    })
+                .Select(CreateSearchResult)
                 .ToList();
         }
 
@@ -78,17 +84,21 @@ namespace E133.Database.Repositories
 
             var results = await this.Collection.Find(filter).ToListAsync();
             return results
-                .Select(document => 
-                    new QuickRecipeSearchResult 
-                    { 
-                        Id = document.Id, 
-                        Title = document.Title, 
-                        UniqueName = document.UniqueName,
-                        Durations = document.Durations, 
-                        SmallImageUrl = document.SmallImageUrl, 
-                        Ingredients = document.Ingredients 
-                    })
+                .Select(CreateSearchResult)
                 .ToList();
+        }
+
+        private static QuickRecipeSearchResult CreateSearchResult(QuickRecipe document)
+        {
+            return new QuickRecipeSearchResult 
+            { 
+                Id = document.Id, 
+                Title = document.Title, 
+                UniqueName = document.UniqueName,
+                Durations = document.Durations, 
+                SmallImageUrl = document.SmallImageUrl, 
+                Ingredients = document.Ingredients 
+            };
         }
     }
 }

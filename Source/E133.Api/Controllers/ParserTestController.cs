@@ -9,9 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace E133.Api.Controllers
 {
-    // TODO This has got to be local only!
-    // [Authorize(Policy = "LocalOnly")]
     [Route("api/[controller]")]
+    [Authorize(Policy = "LocalOnly")]
     public class ParserTestController : Controller
     {
         private readonly IParserFactory _parserFactory;

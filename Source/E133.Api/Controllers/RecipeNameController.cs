@@ -1,17 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using E133.Business;
 
 namespace E133.Api.Controllers
 {
-    // TODO This has got to be local only!
-    // [Authorize(Policy = "LocalOnly")]
     [Route("api/[controller]")]
+    [Authorize(Policy = "LocalOnly")]
     public class RecipeNameController : Controller
     {
         private readonly IQuickRecipeRepository _repo;
