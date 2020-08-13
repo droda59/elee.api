@@ -1,7 +1,7 @@
 -----------
   READ ME  
 -----------
-This is what you need to know and do to run this shit. 
+This is what you need to know and do to run this. 
 
 --------------
   SERVER API
